@@ -1,0 +1,57 @@
+{
+    "name": "spekulatius/laravel-commonmark-blog",
+    "description": "A simple filesystem-based, SEO-optimized blog for Laravel using Commonmark.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Peter Thaleikis",
+            "homepage": "https://releasecandidate.dev"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.2",
+        "laravel/framework": "^6.0|^7.0",
+        "league/commonmark": "^1.5",
+        "romanzipp/laravel-seo": "^2.1",
+        "spatie/yaml-front-matter": "^2.0",
+        "symfony/finder": "^5.0",
+        "symfony/filesystem": "^5.0"
+    },
+    "require-dev": {
+        "symfony/thanks": "^1.2",
+        "phpunit/phpunit": "^7.0|^8.0",
+        "mockery/mockery": "^1.0",
+        "orchestra/testbench": "*",
+        "orchestra/database": "*",
+        "illuminate/support": "*",
+        "fzaninotto/faker": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spekulatius\\LaravelCommonmarkBlog\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Spekulatius\\LaravelCommonmarkBlog\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Spekulatius\\LaravelCommonmarkBlog\\CommonmarkBlogServiceProvider"
+            ]
+        }
+    }
+}
