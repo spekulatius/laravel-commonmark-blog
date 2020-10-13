@@ -44,11 +44,6 @@ class BuildSite extends Command
     protected $source_path = null;
 
     /**
-     * @var array
-     */
-    protected $header_tags = [];
-
-    /**
      * Execute the console command.
      *
      * @return int
@@ -121,9 +116,7 @@ class BuildSite extends Command
     }
 
     /**
-     * Finds all files to process.
-     *
-     * Overwrite this method to access other sources than the filesystem.
+     * Finds and converts all files to process.
      *
      * @return void
      */

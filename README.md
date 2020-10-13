@@ -37,7 +37,7 @@ image: "/images/code.jpg"
 ....
 ```
 
-Default values can be set using the key `frontmatter` in the config file.
+Default values can be set using the key `defaults` in the config file.
 
 ### SEO-Enhancements
 
