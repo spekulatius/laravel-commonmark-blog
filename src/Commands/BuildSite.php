@@ -154,50 +154,74 @@ class BuildSite extends Command
     protected function findFiles(string $path)
     {
         // Find all files which meet the scope requirements
-        return (new Finder())->files()->name('*.md')->in($path);
+        return (new Finder)->files()->name('*.md')->in($path);
     }
 
     /**
      * Convert a given source file into ready-to-ship HTML document.
      *
-     * @param string $template_file
+     * @param string $template
      * @param string $source_file
      * @param string $target_file
      */
-    protected function convertFile(
-        string $template_file,
-        string $source_file,
-        string $target_file
-    ) {
+    protected function convertFile(string $template, string $source_file, string $target_file)
+    {
         $this->info('Converting ' . $source_file);
 
-        // Split frontmatter off the commonmark part.
+        // Split frontmatter and the commonmark parts.
         $article = YamlFrontMatter::parse(file_get_contents($source_file));
 
-        // Render the file using the blade file and write it.
-        file_put_contents(
-            $target_file,
-            view($template_file, [
-                // Header Tags
-                'header' => $this->renderHeaders($article->matter()),
-
-                // Convert markdown to HTML
+        // Prepare the information to hand to the view - the frontmatter and headers+content.
+        $data = array_merge(
+            array_merge(config('blog.defaults', []), $article->matter()),
+            [
+                'header' => $this->prepareLaravelSEOHeaders($article->matter()),
                 'content' => $this->converter->convertToHtml($article->body()),
-            ])->render()
+            ]
         );
+
+        // Render the file using the blade file and write it.
+        file_put_contents($target_file, view($template, $data)->render());
     }
 
     /**
-     * Convert a given source file into ready-to-ship HTML document.
+     * Filters and prepares the headers using Laravel SEO
+     *
+     * @see https://github.com/romanzipp/Laravel-SEO
      *
      * @param array $frontmatter
      * @return string
      */
-    protected function renderHeaders(array $frontmatter)
+    protected function prepareLaravelSEOHeaders(array $frontmatter)
     {
-        $header_tags = array_merge(config('blog.defaults', []), $frontmatter);
+        // Merge the defaults in.
+        $frontmatter = array_merge(config('blog.defaults', []), $frontmatter);
 
-        // Render the header tags
-        return seo()->addFromArray($header_tags)->render();
+        // Fill in some cases - e.g. image, canonical, etc.
+        // @todo
+
+        // Add all custom structs from the list in.
+        seo()->addMany(array_values(array_filter($frontmatter, function ($entry) {
+            return $entry instanceof \romanzipp\Seo\Structs\Struct;
+        })));
+
+        // Filter any methods which aren't allowed for misconfigured.
+        seo()->addFromArray(array_filter($frontmatter, function($value, $key) {
+            return is_string($value) && (
+                in_array($key, [
+                    'charset',
+                    'viewport',
+                    'title',
+                    'description',
+                ]) || in_array($key, [
+                    'og',
+                    'twitter',
+                    'meta',
+                ]) && is_array($value)
+            );
+        }, ARRAY_FILTER_USE_BOTH));
+
+        // Return the combined result, rendered.
+        return seo()->render();
     }
 }

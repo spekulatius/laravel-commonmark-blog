@@ -52,7 +52,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | This allows setting default values for frontmatter.
-    | These defaults are overwritten by post-frontmatter (if defined).
+    |
+    | These defaults are overwritten by post-level frontmatter (if defined).
+    |
+    | In addition, these values are passed into the view renderer
+    |  to allow you access from your template file.
     |
     | @see:
     | - https://github.com/spekulatius/laravel-commonmark-blog#frontmatter
@@ -65,31 +69,38 @@ return [
         'charset' => 'utf-8',
         'viewport' => 'width=device-width, initial-scale=1',
 
-        // Example #1:
+        // Title & Description
         'title' => env('APP_NAME'),
-        // calls:
-        // seo()->title(env('APP_NAME'))
+        // 'description' => 'Default Description',
+
+
+        // Example #1:
+        // 'image' => env('APP_URL') . '/sharing.png',
+        //
+        // .. with 'https://example.com' as APP_URL renders to ..
+        //
+        // <meta name="image" content="https://example.com/sharing.png" />
+        // <meta name="twitter:image" content="https://example.com/sharing.png" />
+        // <meta property="og:image" content="https://example.com/sharing.png" />
 
 
         // Example #2:
-        // 'image' => env('APP_URL') . '/sharing.png',
+        // \romanzipp\Seo\Structs\Link::make()
+        //     ->rel('webmention')
+        //     ->href(env('APP_URL') . '/webmention'),
         //
-        // will call
+        // .. will render as ..
         //
-        // seo()->image(env('APP_URL') . '/sharing.png')
+        // <link rel="webmention" href="https://example.com/webmention">
 
 
         // Example #3:
         //
         // 'og' => [
         //     'site_name' => 'Laravel'
-        // ]
+        // ],
         //
-        // calls:
-        //
-        // seo()->og('site_name', 'Laravel')
-        //
-        // to render:
+        // .. renders ..
         //
         // <meta name="og:site_name" content="Laravel" />
     ],
@@ -99,11 +110,11 @@ return [
     | Commonmark Extensions
     |--------------------------------------------------------------------------
     |
-    | Additional commonmark extension to load.
+    | Additional commonmark extension to load. Don't forget to install the composer dependency.
     |
     | @see:
-    | - https://commonmark.thephpleague.com/1.5/extensions/overview/
     | - https://github.com/spekulatius/laravel-commonmark-blog#adding-commonmark-extensions
+    | - https://commonmark.thephpleague.com/1.5/extensions/overview/
     |
     */
 

@@ -24,8 +24,6 @@ class CommonmarkBlogServiceProvider extends ServiceProvider
                 BuildSite::class,
             ]);
         }
-
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     /**
