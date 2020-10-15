@@ -14,12 +14,15 @@ A simple filesystem-based, SEO-optimized blog for Laravel using [Commonmark](htt
 
 The goal of this package is to separate the blog content from the application while keeping the content hosted under the root domain (e.g. `project.com/blog` instead of `blog.project.com`). This is preferred from an SEO point of view.
 
-Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application entirely. This requires tweaking the server configuration for now (see installation steps).
+Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application entirely. For now (see [#1](https://github.com/spekulatius/laravel-commonmark-blog/issues/1)), this requires tweaking the server configuration (see installation steps).
 
 With a focus on SEO, CommonMark is the logical choice: It is highly extensible allowing for any customization you might need to rank.
 
 
 ## Features
+
+- Converts all `.md` files to HTML files and stores them in the public folder. Any other markdown-extensions are ignored.
+- Assets such as videos, images, etc. as well as any other files are copied over 1:1.
 
 ### Simple Post Structure with Frontmatter & Commonmark: Everything in One Place
 
@@ -78,7 +81,7 @@ Next, publish the configuration file:
 php artisan vendor:publish --provider="Spekulatius\LaravelCommonmarkBlog\CommonmarkBlogServiceProvider" --tag="blog-config"
 ```
 
-Review, extend and adjust the configuration under `config/blog.php` as needed.
+Review, extend and adjust the configuration under `config/blog.php` as needed. The required mimimum is a `BLOG_SOURCE_PATH` and some default frontmatter.
 
 ### Adding Commonmark Extensions
 
