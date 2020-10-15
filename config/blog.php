@@ -42,8 +42,8 @@ return [
         // Should the mix manifest be used to identify the assets?
         'active' => true,
 
-        // Custom manifest path (ignore, if default is used)
-        'manifest_path' => public_path('mix-manifest.json'),
+        // Custom path to the Mix manifest (absolute). Ignore, if default is used.
+        'manifest_path' => null,
     ],
 
     /*

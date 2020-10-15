@@ -2,19 +2,19 @@
 
 namespace Spekulatius\LaravelCommonmarkBlog\Commands;
 
-use League\CommonMark\Environment;
 use League\CommonMark\CommonMarkConverter;
-use Illuminate\Console\Command;
+use League\CommonMark\Environment;
+use Spatie\YamlFrontMatter\YamlFrontMatter;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use romanzipp\Seo\Conductors\Types\ManifestAsset;
 use romanzipp\Seo\Structs\Link;
+use romanzipp\Seo\Structs\Meta;
+use romanzipp\Seo\Structs\Meta\OpenGraph;
+use romanzipp\Seo\Structs\Meta\Twitter;
 use romanzipp\Seo\Structs\Script;
 use romanzipp\Seo\Structs\Struct;
-use romanzipp\Seo\Structs\Meta;
-use romanzipp\Seo\Structs\Meta\Twitter;
-use romanzipp\Seo\Structs\Meta\OpenGraph;
-use romanzipp\Seo\Conductors\Types\ManifestAsset;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Filesystem\Filesystem;
-use Spatie\YamlFrontMatter\YamlFrontMatter;
+use Illuminate\Console\Command;
 
 class BuildSite extends Command
 {
@@ -176,6 +176,9 @@ class BuildSite extends Command
         // Merge the defaults in.
         $frontmatter = array_merge(config('blog.defaults', []), $frontmatter);
 
+        // Include the mix assets, if actived.
+        $this->includeMixAssets();
+
         // Fill in some cases - e.g. image, canonical, etc.
         $this->fillIn($frontmatter);
 
@@ -225,7 +228,10 @@ class BuildSite extends Command
 
                     return $asset;
                 })
-                ->load(config('blog.mix.manifest_path'))
+                ->load(
+                    !is_null(config('blog.mix.manifest_path')) ?
+                        config('blog.mix.manifest_path') : public_path('mix-manifest.json')
+                )
                 ->getAssets();
 
             // Add the actual assets in.
