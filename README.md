@@ -85,7 +85,7 @@ Review, extend and adjust the configuration under `config/blog.php` as needed. T
 
 ### Adding Commonmark Extensions
 
-You can add Commonmark extensions to your configuration file `config/commonmark-blog.php` under `extensions`:
+You can add Commonmark extensions to your configuration file under `extensions`:
 
 ```php
 'extensions' => [
