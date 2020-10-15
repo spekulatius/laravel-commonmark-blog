@@ -52,7 +52,6 @@ return [
     |--------------------------------------------------------------------------
     |
     | This allows setting default values for frontmatter.
-    |
     | These defaults are overwritten by post-level frontmatter (if defined).
     |
     | In addition, these values are passed into the view renderer
@@ -60,6 +59,7 @@ return [
     |
     | @see:
     | - https://github.com/spekulatius/laravel-commonmark-blog#frontmatter
+    | - https://github.com/joshbuchea/HEAD
     | - https://github.com/romanzipp/Laravel-SEO/blob/master/docs/1-INDEX.md#add-from-array-format-addfromarray
     |
     */

@@ -37,7 +37,7 @@ image: "/images/code.jpg"
 ....
 ```
 
-Default values can be set using the key `defaults` in the config file.
+Default values can be set using the key `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
 
 ### SEO-Enhancements
 

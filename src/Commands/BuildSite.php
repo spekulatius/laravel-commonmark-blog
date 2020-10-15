@@ -7,6 +7,10 @@ use League\CommonMark\CommonMarkConverter;
 use Illuminate\Console\Command;
 use romanzipp\Seo\Structs\Link;
 use romanzipp\Seo\Structs\Script;
+use romanzipp\Seo\Structs\Struct;
+use romanzipp\Seo\Structs\Meta;
+use romanzipp\Seo\Structs\Meta\Twitter;
+use romanzipp\Seo\Structs\Meta\OpenGraph;
 use romanzipp\Seo\Conductors\Types\ManifestAsset;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
@@ -88,31 +92,6 @@ class BuildSite extends Command
 
         // Create the converter.
         $this->converter = new CommonMarkConverter([], $this->environment);
-
-
-        // Add the preloading for Laravel elements in.
-        if (config('blog.mix.active')) {
-            // Add the prefetching in.
-            $manifest_assets = seo()
-                ->mix()
-                ->map(static function(ManifestAsset $asset): ?ManifestAsset {
-                    $asset->url = env('APP_URL') . $asset->url;
-
-                    return $asset;
-                })
-                ->load(config('blog.mix.manifest_path'))
-                ->getAssets();
-
-            // Add the actual assets in.
-            foreach ($manifest_assets as $asset) {
-                if ($asset->as === 'style') {
-                    seo()->add(Link::make()->rel('stylesheet')->href($asset->url));
-                }
-                if ($asset->as === 'script') {
-                    seo()->add(Script::make()->src($asset->url));
-                }
-            }
-        }
     }
 
     /**
@@ -198,11 +177,11 @@ class BuildSite extends Command
         $frontmatter = array_merge(config('blog.defaults', []), $frontmatter);
 
         // Fill in some cases - e.g. image, canonical, etc.
-        // @todo
+        $this->fillIn($frontmatter);
 
         // Add all custom structs from the list in.
         seo()->addMany(array_values(array_filter($frontmatter, function ($entry) {
-            return $entry instanceof \romanzipp\Seo\Structs\Struct;
+            return $entry instanceof Struct;
         })));
 
         // Filter any methods which aren't allowed for misconfigured.
@@ -221,7 +200,75 @@ class BuildSite extends Command
             );
         }, ARRAY_FILTER_USE_BOTH));
 
+        // Render the header
+        $header_tags = seo()->render();
+
+        // Reset any previously set structs after the view is rendered.
+        seo()->clearStructs();
+
         // Return the combined result, rendered.
-        return seo()->render();
+        return $header_tags;
+    }
+
+    /**
+     * Helper to include the mix assets.
+     */
+    protected function includeMixAssets()
+    {
+        // Add the preloading for Laravel elements in.
+        if (config('blog.mix.active')) {
+            // Add the prefetching in.
+            $manifest_assets = seo()
+                ->mix()
+                ->map(static function(ManifestAsset $asset): ?ManifestAsset {
+                    $asset->url = env('APP_URL') . $asset->url;
+
+                    return $asset;
+                })
+                ->load(config('blog.mix.manifest_path'))
+                ->getAssets();
+
+            // Add the actual assets in.
+            foreach ($manifest_assets as $asset) {
+                if ($asset->as === 'style') {
+                    seo()->add(Link::make()->rel('stylesheet')->href($asset->url));
+                }
+                if ($asset->as === 'script') {
+                    seo()->add(Script::make()->src($asset->url));
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper to fill in some commonly expected functionality such as image, canonical, etc.
+     *
+     * @param array $frontmatter
+     */
+    protected function fillIn(array $frontmatter)
+    {
+        // Canonical
+        if (isset($frontmatter['canonical'])) {
+            seo()->add(Link::make()->rel('canonical')->href($frontmatter['canonical']));
+        }
+
+        // Image
+        if (isset($frontmatter['image'])) {
+            seo()->addMany([
+                Meta::make()->name('image')->content($frontmatter['image']),
+                Twitter::make()->name('image')->content($frontmatter['image']),
+                OpenGraph::make()->name('image')->content($frontmatter['image']),
+            ]);
+        }
+
+        // Keywords
+        if (isset($frontmatter['keywords'])) {
+            // Allow for both array and string to be passed.
+            // Arrays will be converted to strings here.
+            $keywords = is_array($frontmatter['keywords']) ?
+                join(', ', $frontmatter['keywords']) : $frontmatter['keywords'];
+
+            seo()->add(Meta::make()->name('keywords')->content($keywords));
+        }
     }
 }
