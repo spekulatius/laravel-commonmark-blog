@@ -21,7 +21,8 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 
 ## Features
 
-- Converts all `.md` files to HTML files and stores them in the public folder. Any other markdown-extensions are ignored.
+- Converts all `.md` files to HTML files and stores them in the public folder. Other such as `.markdown` are ignored.
+- Frontmatter can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a part-article basis.
 - Assets such as videos, images, etc. as well as any other files are copied over 1:1.
 
 ### Simple Post Structure with Frontmatter & Commonmark: Everything in One Place
@@ -41,6 +42,8 @@ image: "/images/code.jpg"
 ```
 
 Default values can be set using the key `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
+
+There is also an [example of a blog post](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/example-article.md).
 
 ### SEO-Enhancements
 
