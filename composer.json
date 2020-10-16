@@ -13,6 +13,7 @@
     "prefer-stable": true,
     "require": {
         "php": "^7.2",
+        "nesbot/carbon": "^2.0",
         "laravel/framework": "^6.0|^7.0",
         "league/commonmark": "^1.5",
         "romanzipp/laravel-seo": "^2.1",
