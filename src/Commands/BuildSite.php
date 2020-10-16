@@ -11,6 +11,8 @@ use Symfony\Component\Finder\Finder;
 use romanzipp\Seo\Conductors\Types\ManifestAsset;
 use romanzipp\Seo\Structs\Link;
 use romanzipp\Seo\Structs\Meta;
+use romanzipp\Seo\Structs\Meta\Article;
+use romanzipp\Seo\Structs\Meta\Canonical;
 use romanzipp\Seo\Structs\Meta\OpenGraph;
 use romanzipp\Seo\Structs\Meta\Twitter;
 use romanzipp\Seo\Structs\Script;
@@ -196,6 +198,8 @@ class BuildSite extends Command
                     'viewport',
                     'title',
                     'description',
+                    'image',
+                    'canonical',
                 ]) || in_array($key, [
                     'og',
                     'twitter',
@@ -254,20 +258,6 @@ class BuildSite extends Command
      */
     protected function fillIn(array $frontmatter)
     {
-        // Canonical
-        if (isset($frontmatter['canonical'])) {
-            seo()->add(Link::make()->rel('canonical')->href($frontmatter['canonical']));
-        }
-
-        // Image
-        if (isset($frontmatter['image'])) {
-            seo()->addMany([
-                Meta::make()->name('image')->content($frontmatter['image']),
-                Twitter::make()->name('image')->content($frontmatter['image']),
-                OpenGraph::make()->name('image')->content($frontmatter['image']),
-            ]);
-        }
-
         // Keywords
         if (isset($frontmatter['keywords'])) {
             // Allow for both array and string to be passed.
