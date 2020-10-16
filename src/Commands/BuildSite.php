@@ -2,6 +2,7 @@
 
 namespace Spekulatius\LaravelCommonmarkBlog\Commands;
 
+use Carbon\Carbon;
 use League\CommonMark\CommonMarkConverter;
 use League\CommonMark\Environment;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
@@ -275,6 +276,33 @@ class BuildSite extends Command
                 join(', ', $frontmatter['keywords']) : $frontmatter['keywords'];
 
             seo()->add(Meta::make()->name('keywords')->content($keywords));
+        }
+
+        // Published
+        if (isset($frontmatter['published'])) {
+            seo()->addMany([
+                Article::make()->property('published_time')->content(
+                    Carbon::createFromFormat(
+                        config('blog.date_format', 'Y-m-d H:i:s'),
+                        $frontmatter['published']
+                    )->toAtomString()
+                ),
+            ]);
+        }
+
+        // Modified
+        if (isset($frontmatter['modified'])) {
+            // Prep the date string
+            $date = Carbon::createFromFormat(
+                config('blog.date_format', 'Y-m-d H:i:s'),
+                $frontmatter['modified']
+            )->toAtomString();
+
+            // Add in
+            seo()->addMany([
+                Article::make()->property('modified_time')->content($date),
+                OpenGraph::make()->property('updated_time')->content($date),
+            ]);
         }
     }
 }
