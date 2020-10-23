@@ -1,10 +1,10 @@
-## 🚧️ This project isn't production-ready! It's in active development. Until 1.0 breaking changes are to be expected at any time! Use at own risk 🚧️
+**🚧️ This project isn't production-ready! It's in active development. Until 1.0 breaking changes are to be expected at any time! Use at own risk 🚧️**
 
+![Laravel Commonmark Blog Library](header.jpg)
 
 # [Laravel Commonmark Blog](https://github.com/spekulatius/laravel-commonmark-blog)
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Travis](https://img.shields.io/travis/spekulatius/laravel-commonmark-blog.svg?style=flat-square)]()
 [![Total Downloads](https://img.shields.io/packagist/dt/spekulatius/laravel-commonmark-blog.svg?style=flat-square)](https://packagist.org/packages/spekulatius/laravel-commonmark-blog)
 
 A simple filesystem-based, SEO-optimized blog for Laravel using [Commonmark](https://github.com/thephpleague/commonmark) and [Laravel SEO](https://github.com/romanzipp/Laravel-SEO).
