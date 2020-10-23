@@ -23,29 +23,12 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 
 ## Features
 
+- Support of both articles and simple article-listing pages.
 - **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other such as `.markdown` are ignored.
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a part-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
 
 There is also an [example repository demonstrating the blog](https://github.com/spekulatius/laravel-commonmark-blog-example) further.
-
-### Simple Post Structure with Frontmatter & Commonmark: Everything in One Place
-
-YAML Frontmatter is used to define post-level information such as titles, social sharing images, etc.:
-
-```yaml
----
-title: "The Love of Code"
-description: "Why I love to code."
-image: "/images/code.jpg"
----
-
-# The Love Of Code
-
-....
-```
-
-Default values can be set using the key `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
 
 ### SEO-Enhancements
 
@@ -63,6 +46,70 @@ The following extension/improvements are considered for the blog package:
 
  - Image-Optimization,
  - Schema.org entries using [Spatie/schema-org](https://github.com/spatie/schema-org).
+
+
+## How to Use This Package
+
+Below are examples on how to use the blog package.
+
+### How to Add a Simple Post
+
+Any blog page is following a simple structure using Frontmatter & Commonmark.
+
+YAML Frontmatter is used to define post-level information such as titles, social sharing images, etc.:
+
+```yaml
+---
+title: "The Love of Code"
+description: "Why I love to code."
+image: "/images/code.jpg"
+---
+
+# The Love Of Code
+
+....
+```
+
+Default values can be set using the key `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
+
+### How to Add a Simple Listing Page
+
+Listing pages can be created by adding a page and frontmatter key the `type` as `list`:
+
+```
+---
+type: list
+
+...
+---
+```
+
+With this, the blade-rendering function of gets the following parameters passed in:
+
+ - the complete frontmatter (merged from the `defaults.list` in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and this pages frontmatter (same as regular articles),
+ - the CommonMark-rendered content of the listing page as `content_block`,
+ - the `current_page_number` for the number of the page, and
+ - the `number_of_pages` as the number of pages.
+
+With this information your Blade-file should be able to render a complete page. For listing pages a folder will be created and files will be added to cover the pagination. In addition the numbered page-files an index file is added to allow using no page number:
+
+```
+domain.com/blog/index.html
+domain.com/blog/1.html
+domain.com/blog/2.html
+...
+```
+
+Using the under server configuration described configuration this will lead to the following URLs:
+
+```
+domain.com/blog/
+domain.com/blog/1
+domain.com/blog/2
+...
+```
+
+Note: The first page (here `/blog/1`) will automatically contain a canoncial URL to the variation without page number (`/blog`).
 
 
 ## Requirements & Installation
