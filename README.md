@@ -23,7 +23,7 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 
 ## Features
 
-- Support of both articles and simple article-listing pages.
+- Support of both articles and article-listing pages.
 - **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other such as `.markdown` are ignored.
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a part-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
@@ -97,15 +97,17 @@ With this information your Blade-file should be able to render a complete page. 
 domain.com/blog/index.html
 domain.com/blog/1.html
 domain.com/blog/2.html
+domain.com/blog/3.html
 ...
 ```
 
-Using the under server configuration described configuration this will lead to the following URLs:
+Using the under [server configuration](https://github.com/spekulatius/laravel-commonmark-blog#server-configuration) described configuration this will lead to the following URLs:
 
 ```
 domain.com/blog/
 domain.com/blog/1
 domain.com/blog/2
+domain.com/blog/3
 ...
 ```
 
