@@ -137,7 +137,7 @@ class BuildSite extends Command
     }
 
     /**
-     * Convert a given article into ready-to-ship HTML document.
+     * Convert a given article source file into ready-to-serve HTML document.
      *
      * @param string $template
      * @param SplFileInfo $file
