@@ -8,6 +8,7 @@ use League\CommonMark\Environment;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use romanzipp\Seo\Conductors\Types\ManifestAsset;
 use romanzipp\Seo\Structs\Link;
 use romanzipp\Seo\Structs\Meta;
@@ -112,11 +113,7 @@ class BuildSite extends Command
         // Identify the files to process
         foreach ($this->findFiles($this->source_path) as $file) {
             // Convert the file and store it directly in the public folder.
-            $this->convertFile(
-                config('blog.base_template'),
-                $file->getRealPath(),
-                public_path(preg_replace('/md$/', 'html', $file->getRelativePathname()))
-            );
+            $this->convertArticle(config('blog.base_template'), $file);
 
             // Delete the copied over instance of the file
             unlink(public_path($file->getRelativePathname()));
@@ -140,18 +137,17 @@ class BuildSite extends Command
     }
 
     /**
-     * Convert a given source file into ready-to-ship HTML document.
+     * Convert a given article source file into ready-to-serve HTML document.
      *
      * @param string $template
-     * @param string $source_file
-     * @param string $target_file
+     * @param SplFileInfo $file
      */
-    protected function convertFile(string $template, string $source_file, string $target_file)
+    protected function convertArticle(string $template, SplFileInfo $file)
     {
-        $this->info('Converting ' . $source_file);
+        $this->info('Converting ' . $file->getRelativePathname());
 
         // Split frontmatter and the commonmark parts.
-        $article = YamlFrontMatter::parse(file_get_contents($source_file));
+        $article = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
 
         // Prepare the information to hand to the view - the frontmatter and headers+content.
         $data = array_merge(
@@ -162,8 +158,14 @@ class BuildSite extends Command
             ]
         );
 
-        // Render the file using the blade file and write it.
-        file_put_contents($target_file, view($template, $data)->render());
+        // Define the target directory and create it (optionally).
+        $target_directory = public_path(preg_replace('/\.md$/', '', $file->getRelativePathname()));
+        if (!file_exists($target_directory)) {
+            mkdir($target_directory);
+        }
+
+        // Render the file using the blade file and write it as index.html into the directory.
+        file_put_contents($target_directory . '/index.html', view($template, $data)->render());
     }
 
     /**
