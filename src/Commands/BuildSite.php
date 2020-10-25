@@ -168,6 +168,45 @@ class BuildSite extends Command
     }
 
     /**
+     * Convert a given source file into ready-to-ship HTML document.
+     *
+     * @param string $template
+     * @param string $source_file
+     * @param string $target_file
+     */
+    protected function convertFile(string $template, string $source_file, string $target_file)
+    {
+        $this->info('Converting ' . $source_file);
+
+        // Split frontmatter and the commonmark parts.
+        $page = YamlFrontMatter::parse(file_get_contents($source_file));
+
+        // Prepare the information to hand to the view - the frontmatter and headers+content.
+        $data = array_merge(
+            array_merge(config('blog.defaults', []), $page->matter()),
+            [
+                'header' => $this->prepareLaravelSEOHeaders($page->matter()),
+                'content' => $this->converter->convertToHtml($page->body()),
+            ]
+        );
+
+        // Additional work for listing pages
+        if (isset($data['type']) && $data['type'] === 'list') {
+            // Find all related pages and sort them by date
+
+
+            // Render the individual pages
+            foreach ($pages as $page) {
+                // Render the file using the blade file and write it.
+                file_put_contents($target_file, view($template, $data)->render());
+            }
+        } else {
+            // Render the file using the blade file and write it.
+            file_put_contents($target_file, view($template, $data)->render());
+        }
+    }
+
+    /**
      * Filters and prepares the headers using Laravel SEO
      *
      * @see https://github.com/romanzipp/Laravel-SEO
@@ -183,7 +222,7 @@ class BuildSite extends Command
         // Include the mix assets, if actived.
         $this->includeMixAssets();
 
-        // Fill in some cases - e.g. image, canonical, etc.
+        // Fill in some cases - e.g. keywords, dates, etc.
         $this->fillIn($frontmatter);
 
         // Add all custom structs from the list in.
