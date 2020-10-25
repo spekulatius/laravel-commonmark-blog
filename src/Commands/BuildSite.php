@@ -8,6 +8,7 @@ use League\CommonMark\Environment;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use romanzipp\Seo\Conductors\Types\ManifestAsset;
 use romanzipp\Seo\Structs\Link;
 use romanzipp\Seo\Structs\Meta;
@@ -139,9 +140,9 @@ class BuildSite extends Command
      * Convert a given article into ready-to-ship HTML document.
      *
      * @param string $template
-     * @param ? $file
+     * @param SplFileInfo $file
      */
-    protected function convertArticle(string $template, $file)
+    protected function convertArticle(string $template, SplFileInfo $file)
     {
         $this->info('Converting ' . $file->getRelativePathname());
 
@@ -157,9 +158,11 @@ class BuildSite extends Command
             ]
         );
 
-        // Define the target directory and create it.
+        // Define the target directory and create it (optionally).
         $target_directory = public_path(preg_replace('/\.md$/', '', $file->getRelativePathname()));
-        mkdir($target_directory);
+        if (!file_exists($target_directory)) {
+            mkdir($target_directory);
+        }
 
         // Render the file using the blade file and write it as index.html into the directory.
         file_put_contents($target_directory . '/index.html', view($template, $data)->render());
