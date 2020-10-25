@@ -1,8 +1,8 @@
-**🚧️ This project isn't production-ready! It's in active development. Until 1.0 breaking changes are to be expected at any time! Use at own risk 🚧️**
-
 ![Laravel Commonmark Blog Library](header.jpg)
 
 # [Laravel Commonmark Blog](https://github.com/spekulatius/laravel-commonmark-blog)
+
+**🚧️ This project isn't production-ready! It's in active development. Until 1.0 breaking changes are to be expected at any time! Use at own risk 🚧️**
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/spekulatius/laravel-commonmark-blog.svg?style=flat-square)](https://packagist.org/packages/spekulatius/laravel-commonmark-blog)
@@ -10,11 +10,13 @@
 A simple filesystem-based, SEO-optimized blog for Laravel using [Commonmark](https://commonmark.org) and [Laravel SEO](https://github.com/romanzipp/Laravel-SEO).
 
 
-## Goals
+## Goals & Main Concepts
 
 The goal of this package is to separate the blog content from the application while keeping the content hosted under the root domain (e.g. `project.com/blog` instead of `blog.project.com`). This is preferred from an SEO point of view.
 
-Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application entirely. For now (see [#1](https://github.com/spekulatius/laravel-commonmark-blog/issues/1)), this requires tweaking the server configuration (see installation steps).
+Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application entirely. This way, the blog achieves static-site performance levels.
+
+For each file a directory with an `index.html` is created to avoid additional server configuration. For example, the file `blog/my-article.md` would be stored as `blog/my-article/index.html`. Most web-server are configured to serve these files directly.
 
 With a focus on SEO, CommonMark is the logical choice: It is highly extensible allowing for any customization you might need to rank.
 
@@ -69,6 +71,7 @@ The following extension/improvements are considered for the blog package:
 
 - PHP 7.2 or higher. PHP8 untested.
 - Laravel 7. Support for 8 coming soon.
+- Automatic serving of `index.html` files by your web-server (default for Nginx)
 
 ### Installation
 
@@ -97,28 +100,6 @@ You can add Commonmark extensions to your configuration file under `extensions`:
 ```
 
 Make sure to run the required composer install commands for the extensions before. Packages are usually not required by default.
-
-### Server Configuration
-
-Usually, you want pretty URLs (without file-extensions). To achieve this you will need to configure your server slightly. The following shows how to do this for commonly used servers.
-
-#### Nginx
-
-```
-location / {
-    try_files $uri $uri/ $uri.html /index.php?$query_string;
-}
-```
-
-Here `$url.html` ensures HTML files are looked for before handing the request through to the Laravel application.
-
-#### Apache
-
-TODO
-
-#### Caddy
-
-TODO
 
 
 ## Usage: Rendering of the Blog Posts
