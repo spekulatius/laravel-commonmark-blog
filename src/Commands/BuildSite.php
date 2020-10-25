@@ -19,6 +19,7 @@ use romanzipp\Seo\Structs\Meta\Twitter;
 use romanzipp\Seo\Structs\Script;
 use romanzipp\Seo\Structs\Struct;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class BuildSite extends Command
 {
@@ -110,13 +111,31 @@ class BuildSite extends Command
         // Mirror the complete structure over to create the folder structure as needed.
         (new Filesystem)->mirror($this->source_path, public_path());
 
-        // Identify the files to process
+        // Identify the files to process and sort them.
+        $files = ['articles' => [], 'lists' => []];
         foreach ($this->findFiles($this->source_path) as $file) {
+            // Sort the fiels into lists and articles to process them in order below.
+            $files[
+                Str::endsWith($file->getRelativePathname(), 'index.md') ? 'lists' : 'articles'
+            ][] = $file;
+        }
+
+        // Convert the articles
+        foreach ($files['articles'] as $article_file) {
             // Convert the file and store it directly in the public folder.
-            $this->convertArticle($file);
+            $this->convertArticle($article_file);
 
             // Delete the copied over instance of the file
-            unlink(public_path($file->getRelativePathname()));
+            unlink(public_path($article_file->getRelativePathname()));
+        }
+
+        // Convert the lists
+        foreach ($files['lists'] as $list_file) {
+            // Convert the file and store it directly in the public folder.
+            $this->convertList(config('blog.list_base_template'), $list_file);
+
+            // Delete the copied over instance of the file
+            unlink(public_path($list_file->getRelativePathname()));
         }
 
         $this->info('Build completed.');
@@ -143,7 +162,7 @@ class BuildSite extends Command
      */
     protected function convertArticle(SplFileInfo $file)
     {
-        $this->info('Converting ' . $file->getRelativePathname());
+        $this->info('Converting Article ' . $file->getRelativePathname());
 
         // Split frontmatter and the commonmark parts.
         $article = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
@@ -168,15 +187,14 @@ class BuildSite extends Command
     }
 
     /**
-     * Convert a given source file into ready-to-ship HTML document.
+     * Convert a given source list file into a set of ready-to-serve HTML documents.
      *
      * @param string $template
-     * @param string $source_file
-     * @param string $target_file
+     * @param SplFileInfo $file
      */
-    protected function convertFile(string $template, string $source_file, string $target_file)
+    protected function convertList(string $template, SplFileInfo $file)
     {
-        $this->info('Converting ' . $source_file);
+        $this->info('Converting List ' . $file->getRelativePathname());
 
         // Split frontmatter and the commonmark parts.
         $page = YamlFrontMatter::parse(file_get_contents($source_file));
@@ -190,17 +208,12 @@ class BuildSite extends Command
             ]
         );
 
-        // Additional work for listing pages
-        if (isset($data['type']) && $data['type'] === 'list') {
-            // Find all related pages and sort them by date
+        // Find all related pages and sort them by date
 
+        // Chunk the result into pages
 
-            // Render the individual pages
-            foreach ($pages as $page) {
-                // Render the file using the blade file and write it.
-                file_put_contents($target_file, view($template, $data)->render());
-            }
-        } else {
+        // Render the individual pages
+        foreach ($pages as $page) {
             // Render the file using the blade file and write it.
             file_put_contents($target_file, view($template, $data)->render());
         }

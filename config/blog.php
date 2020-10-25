@@ -15,16 +15,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Base Template
+    | Base Templates
     |--------------------------------------------------------------------------
     |
-    | This blade file will the base-template for the blog entries.
+    | These blade files will the base-templates for the blog entries and list pages.
     |
     | For example "layouts/blog" would point to "resources/views/layouts/blog.blade.php".
     |
     */
 
-    'base_template' => env('BLOG_BASE_TEMPLATE', null),
+    'article_base_template' => env('BLOG_ARTICLE_BASE_TEMPLATE', null),
+    'list_base_template' => env('BLOG_LIST_BASE_TEMPLATE', null),
 
     /*
     |--------------------------------------------------------------------------
@@ -62,8 +63,8 @@ return [
     | Default values for frontmatter values.
     |--------------------------------------------------------------------------
     |
-    | This allows setting default values for frontmatter.
-    | These defaults are overwritten by post-level frontmatter (if defined).
+    | This allows setting default values for frontmatter for both articles and list pages alike.
+    | These defaults are overwritten by file-level frontmatter (if defined).
     |
     | In addition, these values are passed into the view renderer
     |  to allow you access from your template file.
