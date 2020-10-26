@@ -113,7 +113,7 @@ class BuildSite extends Command
         // Identify the files to process
         foreach ($this->findFiles($this->source_path) as $file) {
             // Convert the file and store it directly in the public folder.
-            $this->convertArticle(config('blog.base_template'), $file);
+            $this->convertArticle($file);
 
             // Delete the copied over instance of the file
             unlink(public_path($file->getRelativePathname()));
@@ -139,10 +139,9 @@ class BuildSite extends Command
     /**
      * Convert a given article source file into ready-to-serve HTML document.
      *
-     * @param string $template
      * @param SplFileInfo $file
      */
-    protected function convertArticle(string $template, SplFileInfo $file)
+    protected function convertArticle(SplFileInfo $file)
     {
         $this->info('Converting ' . $file->getRelativePathname());
 
@@ -165,7 +164,7 @@ class BuildSite extends Command
         }
 
         // Render the file using the blade file and write it as index.htm into the directory.
-        file_put_contents($target_directory . '/index.htm', view($template, $data)->render());
+        file_put_contents($target_directory . '/index.htm', view(config('blog.base_template'), $data)->render());
     }
 
     /**
