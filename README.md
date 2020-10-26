@@ -76,11 +76,11 @@ Default values can be set using the key `defaults` in the config file. A great r
 
 Listing pages can be created by adding a page called `index.md` in a directory. With this, the blade-rendering function of gets the following parameters passed in:
 
- - the complete frontmatter (merged from the `defaults` in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and the current page' frontmatter (same as regular articles),
- - the CommonMark-rendered content of the listing page as `content`,
- - the `total_pages` as the number of pages,
- - the `current_page` for the number of the page, and
- - the `articles` for the current page.
+ - the complete frontmatter (the current list page' frontmatter merged with the `defaults` from [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php),
+ - the CommonMark-rendered content of the listing page as `$content`,
+ - the `$total_pages` as the number of pages,
+ - the `$current_page` for the number of the page, and
+ - the `$articles` for the ariticles.
 
 With this information your Blade-file should be able to render a complete page. For listing pages a directory will be created and the required files will be added to cover the pagination. In addition the numbered page-files an index file is added to allow a "root"-page without page number.
 
