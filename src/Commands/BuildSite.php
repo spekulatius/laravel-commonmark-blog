@@ -220,7 +220,7 @@ class BuildSite extends Command
         $target_url = preg_replace('/\/index\.md$/', '', $file->getRelativePathname());
 
         // Find all related pages and sort them by date
-        $articles = collect($generated_articles)
+        $chunked_articles = collect($generated_articles)
             // Only use the pages below this URL
             ->reject(function($item) use ($target_url) { return !Str::startsWith($item['generated_url'], $target_url); })
 
@@ -231,12 +231,12 @@ class BuildSite extends Command
             ->chunk(config('blog.list_per_page', 12));
 
         // Process each chunk into a page
-        $total_pages = $articles->count();
-        $articles->each(function($items, $index) use ($page, $target_url, $total_pages) {
+        $total_pages = $chunked_articles->count();
+        $chunked_articles->each(function($page_articles, $index) use ($page, $target_url, $total_pages) {
             $this->info('Creating page ' . ($index + 1) . ' of ' . $total_pages);
 
             // Generate a page for each chunk.
-            $items->each(function($items) use ($page, $target_url, $total_pages, $index) {
+            $page_articles->each(function($page_articles) use ($page, $target_url, $total_pages, $index) {
                 // Generate a new URL
                 $final_target_url = $target_url . (($index === 0) ? '' : '/' . ($index + 1));
                 $target_directory = public_path($final_target_url);
@@ -255,8 +255,8 @@ class BuildSite extends Command
                         )),
                         'content' => $this->converter->convertToHtml($page->body()),
 
-                        // Items and pagination information
-                        'items' => $items,
+                        // Articles and pagination information
+                        'articles' => $page_articles,
                         'total_pages' => $total_pages,
                         'current_page' => $index + 1,
                     ]
