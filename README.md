@@ -16,7 +16,7 @@ The goal of this package is to separate the blog content from the application wh
 
 Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application entirely. This way, the blog achieves static-site performance levels.
 
-For each file a directory with an `index.html` is created to avoid additional server configuration. For example, the file `blog/my-article.md` would be stored as `blog/my-article/index.html`. Most web-server are configured to serve these files directly.
+For each file a directory with an `index.htm` is created to avoid additional server configuration. For example, the file `blog/my-article.md` would be stored as `blog/my-article/index.htm`. Most web-server are configured to serve these files directly.
 
 With a focus on SEO, CommonMark is the logical choice: It is highly extensible allowing for any customization you might need to rank.
 
@@ -71,7 +71,7 @@ The following extension/improvements are considered for the blog package:
 
 - PHP 7.2 or higher. PHP8 untested.
 - Laravel 7. Support for 8 coming soon.
-- Automatic serving of `index.html` files by your web-server (default for Nginx)
+- Automatic serving of `index.htm` files by your web-server (default for Nginx)
 
 ### Installation
 

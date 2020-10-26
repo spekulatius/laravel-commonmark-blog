@@ -164,8 +164,8 @@ class BuildSite extends Command
             mkdir($target_directory);
         }
 
-        // Render the file using the blade file and write it as index.html into the directory.
-        file_put_contents($target_directory . '/index.html', view($template, $data)->render());
+        // Render the file using the blade file and write it as index.htm into the directory.
+        file_put_contents($target_directory . '/index.htm', view($template, $data)->render());
     }
 
     /**
