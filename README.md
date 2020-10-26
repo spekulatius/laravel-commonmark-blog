@@ -127,7 +127,7 @@ Next, publish the configuration file:
 php artisan vendor:publish --provider="Spekulatius\LaravelCommonmarkBlog\CommonmarkBlogServiceProvider" --tag="blog-config"
 ```
 
-Review, extend and adjust the configuration under `config/blog.php` as needed. The required mimimum is a `BLOG_SOURCE_PATH` and some default frontmatter.
+Review, extend and adjust the configuration under `config/blog.php` as needed. The required minimum is a `BLOG_SOURCE_PATH` and some default frontmatter.
 
 ### Adding Commonmark Extensions
 
