@@ -14,21 +14,19 @@ A simple filesystem-based, SEO-optimized blog for Laravel using [Commonmark](htt
 
 The goal of this package is to separate the blog content from the application while keeping the content hosted under the root domain (e.g. `project.com/blog` instead of `blog.project.com`). This is preferred from an SEO point of view.
 
-Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application entirely. This way, the blog achieves static-site performance levels.
+Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used initially to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application. Assuming correct server configuration, the blog achieves (near) static-site performance levels.
 
-For each file a directory with an `index.htm` is created to avoid additional server configuration. For example, the file `blog/my-article.md` would be stored as `blog/my-article/index.htm`. Most web-server are configured to serve these files directly.
+For each file a directory with an `index.htm` is created to avoid additional server configuration. For example, the file `blog/my-article.md` would be stored as `blog/my-article/index.htm`. Most web-server are already configured to serve these files directly.
 
-With a focus on SEO, CommonMark is the logical choice: It is highly extensible allowing for any customization you might need to rank.
+With a focus on SEO, CommonMark is the logical choice: It is highly extensible allowing for any customization you might need to rank. There is also an [example repository demonstrating the blog](https://github.com/spekulatius/laravel-commonmark-blog-example) further.
 
 
-## Features
+## Core Features
 
 - Support of both articles and article-listing pages. The [example repo](https://github.com/spekulatius/laravel-commonmark-blog-example) shows how to.
 - **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other file extensions such as `.markdown` are ignored.
-- **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a part-article basis.
+- **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a per-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
-
-There is also an [example repository demonstrating the blog](https://github.com/spekulatius/laravel-commonmark-blog-example) further.
 
 ### SEO-Enhancements
 
@@ -40,7 +38,7 @@ There are several SEO-improvements included or easily configurable via extension
 
 SEO improvements are usually active by default or can be configured using the config file.
 
-#### Planned / Considered
+#### Planned / Considered SEO-related enhancements
 
 The following extension/improvements are considered for the blog package:
 
@@ -52,11 +50,9 @@ The following extension/improvements are considered for the blog package:
 
 Below are examples on how to use the blog package.
 
-### How to Add a Simple Post
+### How to Add a Post
 
-Any blog page is following a simple structure using Frontmatter & Commonmark.
-
-YAML Frontmatter is used to define post-level information such as titles, social sharing images, etc.:
+Any blog page is following a simple structure using Frontmatter & Commonmark. The YAML Frontmatter is used to define post-level information such as titles, social sharing images, etc. with the CommonMark content following:
 
 ```yaml
 ---
@@ -70,19 +66,20 @@ image: "/images/code.jpg"
 ....
 ```
 
-Default values can be set using the key `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
+Default values can be set under `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
 
-### How to Add a Simple Listing Page
+### How to Add a Article Listing Page
 
-Listing pages can be created by adding a page called `index.md` in a directory. With this, the blade-rendering function of gets the following parameters passed in:
+Listing pages can be created by adding a file called `index.md` within a directory. With this, the rendering method of gets the following parameters passed in:
 
  - the complete frontmatter (the current list page' frontmatter merged with the `defaults` from [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php),
  - the CommonMark-rendered content of the listing page as `$content`,
  - the `$total_pages` as the number of pages,
- - the `$current_page` for the number of the page, and
+ - the `$current_page` for the number of the page,
+ - the `$base_url` for the pagination pages, and
  - the `$articles` for the ariticles.
 
-With this information your Blade-file should be able to render a complete page. For listing pages a directory will be created and the required files will be added to cover the pagination. In addition the numbered page-files an index file is added to allow a "root"-page without page number.
+With this information your Blade-file should be able to render a complete article listing page. In addition the numbered page-files an `index` file is added to allow a "root"-page without page number. The following example explains this more.
 
 If three listing pages with articles need to be created the following files would be created:
 
@@ -105,7 +102,7 @@ domain.com/blog/3
 Note:
 - By default the articles includes also articles in further nested directories below.
 - All pages will automatically receive a canonical URL according to the page number.
-- The first page (here `/blog/1`) is only a copy of the `index.htm` to allow accessing it with number. It automatically contains a canoncial URL to the variation without page number (here: `/blog`).
+- The first page (here `/blog/1`) is only a copy of the `index.htm` to allow access with a number. It automatically contains a canoncial URL to the variation without page number (here: `/blog`).
 
 
 ## Requirements & Installation
@@ -113,8 +110,8 @@ Note:
 ### Requirements
 
 - PHP 7.2 or higher. PHP8 untested.
-- Laravel 7. Support for 8 coming soon.
-- Automatic serving of `index.htm` files by your web-server (default for Nginx)
+- Laravel 7. Support for 8 coming shortly.
+- Serving of `index.htm` files by your web-server (default for Nginx)
 
 ### Installation
 
