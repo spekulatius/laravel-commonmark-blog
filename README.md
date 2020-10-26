@@ -110,7 +110,7 @@ Note:
 ### Requirements
 
 - PHP 7.2 or higher. PHP8 untested.
-- Laravel 7. Support for 8 coming shortly.
+- Laravel 6, 7 and 8
 - Serving of `index.htm` files by your web-server (default for Nginx)
 
 ### Installation
