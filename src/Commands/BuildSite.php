@@ -19,6 +19,7 @@ use romanzipp\Seo\Structs\Meta\Twitter;
 use romanzipp\Seo\Structs\Script;
 use romanzipp\Seo\Structs\Struct;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class BuildSite extends Command
 {
@@ -82,8 +83,16 @@ class BuildSite extends Command
         $this->source_path = $source_path;
 
         // Checks
-        if (is_null(config('blog.base_template'))) {
-            $this->error('No base template defined.');
+        if (is_null(config('blog.article_base_template'))) {
+            $this->error('No article base template defined.');
+            die;
+        }
+        if (is_null(config('blog.list_base_template'))) {
+            $this->error('No list base template defined.');
+            die;
+        }
+        if (is_null(config('blog.list_per_page'))) {
+            $this->error('No list per_page count defined.');
             die;
         }
 
@@ -110,13 +119,32 @@ class BuildSite extends Command
         // Mirror the complete structure over to create the folder structure as needed.
         (new Filesystem)->mirror($this->source_path, public_path());
 
-        // Identify the files to process
+        // Identify the files to process and sort them.
+        $files = ['articles' => [], 'lists' => []];
         foreach ($this->findFiles($this->source_path) as $file) {
+            // Sort the fiels into lists and articles to process them in order below.
+            $files[
+                Str::endsWith($file->getRelativePathname(), 'index.md') ? 'lists' : 'articles'
+            ][] = $file;
+        }
+
+        // Convert the articles
+        $generated_articles = [];
+        foreach ($files['articles'] as $article_file) {
             // Convert the file and store it directly in the public folder.
-            $this->convertArticle($file);
+            $generated_articles[] = $this->convertArticle($article_file);
 
             // Delete the copied over instance of the file
-            unlink(public_path($file->getRelativePathname()));
+            unlink(public_path($article_file->getRelativePathname()));
+        }
+
+        // Convert the lists
+        foreach ($files['lists'] as $list_file) {
+            // Convert the file and store it directly in the public folder.
+            $this->convertList($list_file, $generated_articles);
+
+            // Delete the copied over instance of the file
+            unlink(public_path($list_file->getRelativePathname()));
         }
 
         $this->info('Build completed.');
@@ -140,10 +168,11 @@ class BuildSite extends Command
      * Convert a given article source file into ready-to-serve HTML document.
      *
      * @param SplFileInfo $file
+     * @return array
      */
     protected function convertArticle(SplFileInfo $file)
     {
-        $this->info('Converting ' . $file->getRelativePathname());
+        $this->info('Converting Article ' . $file->getRelativePathname());
 
         // Split frontmatter and the commonmark parts.
         $article = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
@@ -158,13 +187,97 @@ class BuildSite extends Command
         );
 
         // Define the target directory and create it (optionally).
-        $target_directory = public_path(preg_replace('/\.md$/', '', $file->getRelativePathname()));
+        $target_url = preg_replace('/\.md$/', '', $file->getRelativePathname());
+        $target_directory = public_path($target_url);
         if (!file_exists($target_directory)) {
             mkdir($target_directory);
         }
 
         // Render the file using the blade file and write it as index.htm into the directory.
-        file_put_contents($target_directory . '/index.htm', view(config('blog.base_template'), $data)->render());
+        file_put_contents(
+            $target_directory . '/index.htm',
+            view(config('blog.article_base_template'), $data)->render()
+        );
+
+        // Return the generated header information with some additional details for internal handling.
+        return array_merge([
+            'absolute_url' => Str::finish(env('APP_URL'), '/') . $target_url,
+            'generated_url' => $target_url,
+        ], $data);
+    }
+
+    /**
+     * Convert a given source list file into a set of ready-to-serve HTML documents.
+     *
+     * @param SplFileInfo $file
+     * @param array $generated_articles
+     */
+    protected function convertList(SplFileInfo $file, array $generated_articles)
+    {
+        $this->info('Preparing List ' . $file->getRelativePathname());
+
+        // Split frontmatter and the commonmark parts.
+        $page = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
+
+        // Define the target directory and create it (optionally).
+        $target_url = preg_replace('/\/index\.md$/', '', $file->getRelativePathname());
+
+        // Find all related pages and sort them by date
+        $chunked_articles = collect($generated_articles)
+            // Only use the pages below this URL
+            ->reject(function($item) use ($target_url) { return !Str::startsWith($item['generated_url'], $target_url); })
+
+            // Sort by date by default
+            ->sortByDesc('modified')
+
+            // Chunk the results into pages
+            ->chunk(config('blog.list_per_page', 12));
+
+        // Process each chunk into a page
+        $total_pages = $chunked_articles->count();
+        $chunked_articles->each(function($page_articles, $index) use ($page, $target_url, $total_pages) {
+            $this->info('Creating page ' . ($index + 1) . ' of ' . $total_pages);
+
+            // Generate a page for each chunk.
+            $final_target_url = $target_url . (($index === 0) ? '' : '/' . ($index + 1));
+            $target_directory = public_path($final_target_url);
+            if (!file_exists($target_directory)) {
+                mkdir($target_directory);
+            }
+
+            // Prepare the information to hand to the view - the frontmatter and headers+content.
+            $data = array_merge(
+                array_merge(config('blog.defaults', []), $page->matter()),
+                [
+                    // Header and content.
+                    'header' => $this->prepareLaravelSEOHeaders(array_merge(
+                        $page->matter(),
+                        ['canonical' => Str::finish(env('APP_URL'), '/') . $final_target_url]
+                    )),
+                    'content' => $this->converter->convertToHtml($page->body()),
+
+                    // Articles and pagination information
+                    'base_url' => Str::finish(env('APP_URL'), '/') . $target_url,
+                    'articles' => $page_articles,
+                    'total_pages' => $total_pages,
+                    'current_page' => $index + 1,
+                ]
+            );
+
+            // Render the file and write it.
+            file_put_contents(
+                $target_directory . '/index.htm',
+                view(config('blog.list_base_template'), $data)->render()
+            );
+
+            // Copy the index.htm to 1/index.htm, if it's the first page. Saves lots of cases in the pagination.
+            if ($index === 0) {
+                if (!file_exists($target_directory . '/1')) {
+                    mkdir($target_directory . '/1');
+                }
+                copy($target_directory . '/index.htm', $target_directory . '/1/index.htm');
+            }
+        });
     }
 
     /**
@@ -183,7 +296,7 @@ class BuildSite extends Command
         // Include the mix assets, if actived.
         $this->includeMixAssets();
 
-        // Fill in some cases - e.g. image, canonical, etc.
+        // Fill in some cases - e.g. keywords, dates, etc.
         $this->fillIn($frontmatter);
 
         // Add all custom structs from the list in.
