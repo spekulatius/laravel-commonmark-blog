@@ -34,7 +34,7 @@ There is also an [example repository demonstrating the blog](https://github.com/
 
 There are several SEO-improvements included or easily configurable via extensions:
 
- - Meta-tags, Twitter Card and Facebook Open-Graph from the post-frontmatter or global
+ - Meta-tags, Twitter Card and Facebook Open-Graph from the post-frontmatter or globally
  - Adding lazy-loading attributes to images (optional via extension)
  - Global definitions of `rel`-attributes for root-domain, sub-domains, and external links (optional via extension)
 
@@ -74,44 +74,38 @@ Default values can be set using the key `defaults` in the config file. A great r
 
 ### How to Add a Simple Listing Page
 
-Listing pages can be created by adding a page and frontmatter key the `type` as `list`:
+Listing pages can be created by adding a page called `index.md` in a directory. With this, the blade-rendering function of gets the following parameters passed in:
+
+ - the complete frontmatter (merged from the `defaults` in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and the current page' frontmatter (same as regular articles),
+ - the CommonMark-rendered content of the listing page as `content`,
+ - the `total_pages` as the number of pages,
+ - the `current_page` for the number of the page, and
+ - the `articles` for the current page.
+
+With this information your Blade-file should be able to render a complete page. For listing pages a directory will be created and the required files will be added to cover the pagination. In addition the numbered page-files an index file is added to allow a "root"-page without page number.
+
+If three listing pages with articles need to be created the following files would be created:
 
 ```
----
-type: list
-
-...
----
+domain.com/blog/index.htm
+domain.com/blog/1.htm
+domain.com/blog/2.htm
+domain.com/blog/3.htm
 ```
 
-With this, the blade-rendering function of gets the following parameters passed in:
-
- - the complete frontmatter (merged from the `defaults.list` in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and this pages frontmatter (same as regular articles),
- - the CommonMark-rendered content of the listing page as `content_block`,
- - the `current_page_number` for the number of the page, and
- - the `number_of_pages` as the number of pages.
-
-With this information your Blade-file should be able to render a complete page. For listing pages a folder will be created and files will be added to cover the pagination. In addition the numbered page-files an index file is added to allow using no page number:
+Most web-servers will serve these as:
 
 ```
-domain.com/blog/index.html
-domain.com/blog/1.html
-domain.com/blog/2.html
-domain.com/blog/3.html
-...
-```
-
-Using the under [server configuration](https://github.com/spekulatius/laravel-commonmark-blog#server-configuration) described configuration this will lead to the following URLs:
-
-```
-domain.com/blog/
+domain.com/blog
 domain.com/blog/1
 domain.com/blog/2
 domain.com/blog/3
-...
 ```
 
-Note: The first page (here `/blog/1`) will automatically contain a canoncial URL to the variation without page number (`/blog`).
+Note:
+- By default the articles includes also articles in further nested directories below.
+- All pages will automatically receive a canonical URL according to the page number.
+- The first page (here `/blog/1`) is only a copy of the `index.htm` to allow accessing it with number. It automatically contains a canoncial URL to the variation without page number (here: `/blog`).
 
 
 ## Requirements & Installation

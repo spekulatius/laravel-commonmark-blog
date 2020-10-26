@@ -83,8 +83,16 @@ class BuildSite extends Command
         $this->source_path = $source_path;
 
         // Checks
-        if (is_null(config('blog.base_template'))) {
-            $this->error('No base template defined.');
+        if (is_null(config('blog.article_base_template'))) {
+            $this->error('No article base template defined.');
+            die;
+        }
+        if (is_null(config('blog.list_base_template'))) {
+            $this->error('No list base template defined.');
+            die;
+        }
+        if (is_null(config('blog.list_per_page'))) {
+            $this->error('No list per_page count defined.');
             die;
         }
 
@@ -121,9 +129,10 @@ class BuildSite extends Command
         }
 
         // Convert the articles
+        $generated_articles = [];
         foreach ($files['articles'] as $article_file) {
             // Convert the file and store it directly in the public folder.
-            $this->convertArticle($article_file);
+            $generated_articles[] = $this->convertArticle($article_file);
 
             // Delete the copied over instance of the file
             unlink(public_path($article_file->getRelativePathname()));
@@ -132,7 +141,7 @@ class BuildSite extends Command
         // Convert the lists
         foreach ($files['lists'] as $list_file) {
             // Convert the file and store it directly in the public folder.
-            $this->convertList(config('blog.list_base_template'), $list_file);
+            $this->convertList($list_file, $generated_articles);
 
             // Delete the copied over instance of the file
             unlink(public_path($list_file->getRelativePathname()));
@@ -159,6 +168,7 @@ class BuildSite extends Command
      * Convert a given article source file into ready-to-serve HTML document.
      *
      * @param SplFileInfo $file
+     * @return array
      */
     protected function convertArticle(SplFileInfo $file)
     {
@@ -177,46 +187,97 @@ class BuildSite extends Command
         );
 
         // Define the target directory and create it (optionally).
-        $target_directory = public_path(preg_replace('/\.md$/', '', $file->getRelativePathname()));
+        $target_url = preg_replace('/\.md$/', '', $file->getRelativePathname());
+        $target_directory = public_path($target_url);
         if (!file_exists($target_directory)) {
             mkdir($target_directory);
         }
 
         // Render the file using the blade file and write it as index.htm into the directory.
-        file_put_contents($target_directory . '/index.htm', view(config('blog.base_template'), $data)->render());
+        file_put_contents(
+            $target_directory . '/index.htm',
+            view(config('blog.article_base_template'), $data)->render()
+        );
+
+        // Return the generated header information with some additional details for internal handling.
+        return array_merge(['generated_url' => $target_url], $data);
     }
 
     /**
      * Convert a given source list file into a set of ready-to-serve HTML documents.
      *
-     * @param string $template
      * @param SplFileInfo $file
+     * @param array $generated_articles
      */
-    protected function convertList(string $template, SplFileInfo $file)
+    protected function convertList(SplFileInfo $file, array $generated_articles)
     {
-        $this->info('Converting List ' . $file->getRelativePathname());
+        $this->info('Preparing List ' . $file->getRelativePathname());
 
         // Split frontmatter and the commonmark parts.
-        $page = YamlFrontMatter::parse(file_get_contents($source_file));
+        $page = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
 
-        // Prepare the information to hand to the view - the frontmatter and headers+content.
-        $data = array_merge(
-            array_merge(config('blog.defaults', []), $page->matter()),
-            [
-                'header' => $this->prepareLaravelSEOHeaders($page->matter()),
-                'content' => $this->converter->convertToHtml($page->body()),
-            ]
-        );
+        // Define the target directory and create it (optionally).
+        $target_url = preg_replace('/\/index\.md$/', '', $file->getRelativePathname());
 
         // Find all related pages and sort them by date
+        $articles = collect($generated_articles)
+            // Only use the pages below this URL
+            ->reject(function($item) use ($target_url) { return !Str::startsWith($item['generated_url'], $target_url); })
 
-        // Chunk the result into pages
+            // Sort by date by default
+            ->sortByDesc('modified')
 
-        // Render the individual pages
-        foreach ($pages as $page) {
-            // Render the file using the blade file and write it.
-            file_put_contents($target_file, view($template, $data)->render());
-        }
+            // Chunk the results into pages
+            ->chunk(config('blog.list_per_page', 12));
+
+        // Process each chunk into a page
+        $total_pages = $articles->count();
+        $articles->each(function($items, $index) use ($page, $target_url, $total_pages) {
+            $this->info('Creating page ' . ($index + 1) . ' of ' . $total_pages);
+
+            // Generate a page for each chunk.
+            $items->each(function($items) use ($page, $target_url, $total_pages, $index) {
+                // Generate a new URL
+                $final_target_url = $target_url . (($index === 0) ? '' : '/' . ($index + 1));
+                $target_directory = public_path($final_target_url);
+                if (!file_exists($target_directory)) {
+                    mkdir($target_directory);
+                }
+
+                // Prepare the information to hand to the view - the frontmatter and headers+content.
+                $data = array_merge(
+                    array_merge(config('blog.defaults', []), $page->matter()),
+                    [
+                        // Header and content.
+                        'header' => $this->prepareLaravelSEOHeaders(array_merge(
+                            $page->matter(),
+                            ['canonical' => Str::finish(env('APP_URL'), '/') . $final_target_url]
+                        )),
+                        'content' => $this->converter->convertToHtml($page->body()),
+
+                        // Items and pagination information
+                        'items' => $items,
+                        'total_pages' => $total_pages,
+                        'current_page' => $index + 1,
+                    ]
+                );
+
+
+                // Render the file and write it.
+                file_put_contents(
+                    $target_directory . '/index.htm',
+                    view(config('blog.list_base_template'), $data)->render()
+                );
+
+                // Copy the index.htm to 1/index.htm, if it's the first page. Saves lots of cases in the pagination.
+                if ($index === 0) {
+                    if (!file_exists($target_directory . '/1')) {
+                        mkdir($target_directory . '/1');
+                    }
+                    copy($target_directory . '/index.htm', $target_directory . '/1/index.htm');
+                }
+            });
+        });
     }
 
     /**
