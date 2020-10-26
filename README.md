@@ -23,7 +23,7 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 
 ## Features
 
-- Support of both articles and article-listing pages.
+- Support of both articles and article-listing pages. The [example repo](https://github.com/spekulatius/laravel-commonmark-blog-example) shows how to.
 - **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other such as `.markdown` are ignored.
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a part-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
