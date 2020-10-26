@@ -236,47 +236,43 @@ class BuildSite extends Command
             $this->info('Creating page ' . ($index + 1) . ' of ' . $total_pages);
 
             // Generate a page for each chunk.
-            $page_articles->each(function($page_articles) use ($page, $target_url, $total_pages, $index) {
-                // Generate a new URL
-                $final_target_url = $target_url . (($index === 0) ? '' : '/' . ($index + 1));
-                $target_directory = public_path($final_target_url);
-                if (!file_exists($target_directory)) {
-                    mkdir($target_directory);
+            $final_target_url = $target_url . (($index === 0) ? '' : '/' . ($index + 1));
+            $target_directory = public_path($final_target_url);
+            if (!file_exists($target_directory)) {
+                mkdir($target_directory);
+            }
+
+            // Prepare the information to hand to the view - the frontmatter and headers+content.
+            $data = array_merge(
+                array_merge(config('blog.defaults', []), $page->matter()),
+                [
+                    // Header and content.
+                    'header' => $this->prepareLaravelSEOHeaders(array_merge(
+                        $page->matter(),
+                        ['canonical' => Str::finish(env('APP_URL'), '/') . $final_target_url]
+                    )),
+                    'content' => $this->converter->convertToHtml($page->body()),
+
+                    // Articles and pagination information
+                    'articles' => $page_articles,
+                    'total_pages' => $total_pages,
+                    'current_page' => $index + 1,
+                ]
+            );
+
+            // Render the file and write it.
+            file_put_contents(
+                $target_directory . '/index.htm',
+                view(config('blog.list_base_template'), $data)->render()
+            );
+
+            // Copy the index.htm to 1/index.htm, if it's the first page. Saves lots of cases in the pagination.
+            if ($index === 0) {
+                if (!file_exists($target_directory . '/1')) {
+                    mkdir($target_directory . '/1');
                 }
-
-                // Prepare the information to hand to the view - the frontmatter and headers+content.
-                $data = array_merge(
-                    array_merge(config('blog.defaults', []), $page->matter()),
-                    [
-                        // Header and content.
-                        'header' => $this->prepareLaravelSEOHeaders(array_merge(
-                            $page->matter(),
-                            ['canonical' => Str::finish(env('APP_URL'), '/') . $final_target_url]
-                        )),
-                        'content' => $this->converter->convertToHtml($page->body()),
-
-                        // Articles and pagination information
-                        'articles' => $page_articles,
-                        'total_pages' => $total_pages,
-                        'current_page' => $index + 1,
-                    ]
-                );
-
-
-                // Render the file and write it.
-                file_put_contents(
-                    $target_directory . '/index.htm',
-                    view(config('blog.list_base_template'), $data)->render()
-                );
-
-                // Copy the index.htm to 1/index.htm, if it's the first page. Saves lots of cases in the pagination.
-                if ($index === 0) {
-                    if (!file_exists($target_directory . '/1')) {
-                        mkdir($target_directory . '/1');
-                    }
-                    copy($target_directory . '/index.htm', $target_directory . '/1/index.htm');
-                }
-            });
+                copy($target_directory . '/index.htm', $target_directory . '/1/index.htm');
+            }
         });
     }
 
