@@ -200,7 +200,10 @@ class BuildSite extends Command
         );
 
         // Return the generated header information with some additional details for internal handling.
-        return array_merge(['generated_url' => $target_url], $data);
+        return array_merge([
+            'absolute_url' => Str::finish(env('APP_URL'), '/') . $target_url,
+            'generated_url' => $target_url,
+        ], $data);
     }
 
     /**
@@ -254,6 +257,7 @@ class BuildSite extends Command
                     'content' => $this->converter->convertToHtml($page->body()),
 
                     // Articles and pagination information
+                    'base_url' => Str::finish(env('APP_URL'), '/') . $target_url,
                     'articles' => $page_articles,
                     'total_pages' => $total_pages,
                     'current_page' => $index + 1,
