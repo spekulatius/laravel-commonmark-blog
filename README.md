@@ -2,7 +2,7 @@
 
 # [Laravel Commonmark Blog](https://github.com/spekulatius/laravel-commonmark-blog)
 
-**🚧️ This project isn't production-ready! It's in active development. Until 1.0 breaking changes are to be expected at any time! Use at own risk 🚧️**
+**🚧️ This project is in development! Use at own risk 🚧️ Please get in touch via email or GitHub issues and share any feedback, issues or simply to showcase your use-case.**
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/spekulatius/laravel-commonmark-blog.svg?style=flat-square)](https://packagist.org/packages/spekulatius/laravel-commonmark-blog)
