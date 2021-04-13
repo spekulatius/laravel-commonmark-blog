@@ -201,7 +201,7 @@ class BuildSite extends Command
 
         // Return the generated header information with some additional details for internal handling.
         return array_merge([
-            'absolute_url' => Str::finish(env('APP_URL'), '/') . $target_url,
+            'absolute_url' => Str::finish(Str::finish(env('APP_URL'), '/') . $target_url, '/'),
             'generated_url' => $target_url,
         ], $data);
     }
@@ -270,7 +270,8 @@ class BuildSite extends Command
                 view(config('blog.list_base_template'), $data)->render()
             );
 
-            // Copy the index.htm to 1/index.htm, if it's the first page. Saves lots of cases in the pagination.
+            // Copy the index.htm to 1/index.htm, if it's the first page.
+            // Saves lots of cases in the pagination.
             if ($index === 0) {
                 if (!file_exists($target_directory . '/1')) {
                     mkdir($target_directory . '/1');
