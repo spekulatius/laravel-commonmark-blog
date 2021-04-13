@@ -252,12 +252,12 @@ class BuildSite extends Command
                     // Header and content.
                     'header' => $this->prepareLaravelSEOHeaders(array_merge(
                         $page->matter(),
-                        ['canonical' => Str::finish(Str::finish(env('APP_URL'), '/') . $final_target_url)]
+                        ['canonical' => Str::finish(Str::finish(env('APP_URL'), '/') . $final_target_url, '/')]
                     )),
                     'content' => $this->converter->convertToHtml($page->body()),
 
                     // Articles and pagination information
-                    'base_url' => Str::finish(Str::finish(env('APP_URL'), '/') . $target_url),
+                    'base_url' => Str::finish(Str::finish(env('APP_URL'), '/') . $target_url, '/'),
                     'articles' => $page_articles,
                     'total_pages' => $total_pages,
                     'current_page' => $index + 1,
