@@ -110,7 +110,7 @@ return [
         // Example #3:
         //
         // 'og' => [
-        //     'site_name' => 'Laravel'
+        //     'site_name' => 'Laravel',
         // ],
         //
         // .. renders ..
