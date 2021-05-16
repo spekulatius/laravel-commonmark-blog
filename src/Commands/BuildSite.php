@@ -165,6 +165,28 @@ class BuildSite extends Command
     }
 
     /**
+     * Prepares the data for a file conversion.
+     * This allows you to use the data separately.
+     *
+     * @param string $filename
+     * @return array
+     */
+    public function prepareData(string $filename)
+    {
+        // Split frontmatter and the commonmark parts.
+        $article = YamlFrontMatter::parse(file_get_contents($filename));
+
+        // Prepare the information to hand to the view - the frontmatter and headers+content.
+        return array_merge(
+            array_merge(config('blog.defaults', []), $article->matter()),
+            [
+                'header' => $this->prepareLaravelSEOHeaders($article->matter()),
+                'content' => $this->converter->convertToHtml($article->body()),
+            ]
+        );
+    }
+
+    /**
      * Convert a given article source file into ready-to-serve HTML document.
      *
      * @param SplFileInfo $file
@@ -174,17 +196,8 @@ class BuildSite extends Command
     {
         $this->info('Converting Article ' . $file->getRelativePathname());
 
-        // Split frontmatter and the commonmark parts.
-        $article = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
-
-        // Prepare the information to hand to the view - the frontmatter and headers+content.
-        $data = array_merge(
-            array_merge(config('blog.defaults', []), $article->matter()),
-            [
-                'header' => $this->prepareLaravelSEOHeaders($article->matter()),
-                'content' => $this->converter->convertToHtml($article->body()),
-            ]
-        );
+        // Prepares the data
+        $data = $this->prepareData($file->getRealPath());
 
         // Define the target directory and create it (optionally).
         $target_url = preg_replace('/\.md$/', '', $file->getRelativePathname());
