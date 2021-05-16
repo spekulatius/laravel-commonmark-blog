@@ -2,7 +2,7 @@
 
 namespace Spekulatius\LaravelCommonmarkBlog;
 
-use Spekulatius\LaravelCommonmarkBlog\Commands\BuildSite;
+use Spekulatius\LaravelCommonmarkBlog\Commands\BuildBlog;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +21,7 @@ class CommonmarkBlogServiceProvider extends ServiceProvider
         // Register the command if we are using the application via the CLI
         if ($this->app->runningInConsole()) {
             $this->commands([
-                BuildSite::class,
+                BuildBlog::class,
             ]);
         }
     }
