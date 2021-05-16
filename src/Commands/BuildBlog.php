@@ -21,7 +21,7 @@ use romanzipp\Seo\Structs\Struct;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
-class BuildSite extends Command
+class BuildBlog extends Command
 {
     /**
      * The name and signature of the console command.
@@ -35,7 +35,7 @@ class BuildSite extends Command
      *
      * @var string
      */
-    protected $description = 'Builds the site from the source files.';
+    protected $description = 'Builds the blog from the source files.';
 
     /**
      * @var Environment
@@ -51,6 +51,20 @@ class BuildSite extends Command
      * @var string
      */
     protected $source_path = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Prepare the enviroment with the custom extensions.
+        $this->environment = Environment::createCommonMarkEnvironment();
+        foreach (config('blog.extensions') as $extension) {
+            $this->environment->addExtension($extension);
+        }
+
+        // Create the converter.
+        $this->converter = new CommonMarkConverter([], $this->environment);
+    }
 
     /**
      * Execute the console command.
@@ -95,16 +109,6 @@ class BuildSite extends Command
             $this->error('No list per_page count defined.');
             die;
         }
-
-
-        // Prepare the enviroment with the custom extensions.
-        $this->environment = Environment::createCommonMarkEnvironment();
-        foreach (config('blog.extensions') as $extension) {
-            $this->environment->addExtension($extension);
-        }
-
-        // Create the converter.
-        $this->converter = new CommonMarkConverter([], $this->environment);
     }
 
     /**
@@ -165,28 +169,6 @@ class BuildSite extends Command
     }
 
     /**
-     * Prepares the data for a file conversion.
-     * This allows you to use the data separately.
-     *
-     * @param string $filename
-     * @return array
-     */
-    public function prepareData(string $filename)
-    {
-        // Split frontmatter and the commonmark parts.
-        $article = YamlFrontMatter::parse(file_get_contents($filename));
-
-        // Prepare the information to hand to the view - the frontmatter and headers+content.
-        return array_merge(
-            array_merge(config('blog.defaults', []), $article->matter()),
-            [
-                'header' => $this->prepareLaravelSEOHeaders($article->matter()),
-                'content' => $this->converter->convertToHtml($article->body()),
-            ]
-        );
-    }
-
-    /**
      * Convert a given article source file into ready-to-serve HTML document.
      *
      * @param SplFileInfo $file
@@ -217,6 +199,28 @@ class BuildSite extends Command
             'absolute_url' => Str::finish(env('APP_URL'), '/') . $target_url,
             'generated_url' => $target_url,
         ], $data);
+    }
+
+    /**
+     * Prepares the data for a file conversion.
+     * This allows you to use the data separately.
+     *
+     * @param string $filename
+     * @return array
+     */
+    public function prepareData(string $filename)
+    {
+        // Split frontmatter and the commonmark parts.
+        $article = YamlFrontMatter::parse(file_get_contents($filename));
+
+        // Prepare the information to hand to the view - the frontmatter and headers+content.
+        return array_merge(
+            array_merge(config('blog.defaults', []), $article->matter()),
+            [
+                'header' => $this->prepareLaravelSEOHeaders($article->matter()),
+                'content' => $this->converter->convertToHtml($article->body()),
+            ]
+        );
     }
 
     /**
