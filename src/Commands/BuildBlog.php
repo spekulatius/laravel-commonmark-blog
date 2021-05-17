@@ -63,7 +63,10 @@ class BuildBlog extends Command
         }
 
         // Create the converter.
-        $this->converter = new CommonMarkConverter([], $this->environment);
+        $this->converter = new CommonMarkConverter(
+            config('blog.config'),
+            $this->environment,
+        );
     }
 
     /**
