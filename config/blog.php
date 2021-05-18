@@ -97,11 +97,10 @@ return [
     | Optional Cache Storage
     |--------------------------------------------------------------------------
     |
-    | The generated article (not lists), can be stored in the cache for other usage.
+    | The generated articles (not lists), can be stored in the cache for other usage.
+    | This allows usage in sidebars, "read also"-sections, etc.
     |
-    | This could be used to fill sidebars, "read also"-sections, etc.
-    |
-    | Deactive by default!
+    | This is deactive by default!
     | Set the cache key to a string, e.g. 'generated-articles' to activate it.
     |
     */
