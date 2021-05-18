@@ -273,7 +273,7 @@ class BuildBlog extends Command
         $page = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
 
         // Define the target directory and create it (optionally).
-        $targetURL = preg_replace('/\/index\.md$/', '', $file->getRelativePathname());
+        $targetURL = preg_replace('/\/index\.md$/', '/', $file->getRelativePathname());
 
         // Find all related pages and sort them by date
         $chunkedArticles = collect($generatedArticles)
@@ -294,7 +294,7 @@ class BuildBlog extends Command
             $this->info('Creating page ' . ($index + 1) . ' of ' . $totalPages);
 
             // Generate a page for each chunk.
-            $finalTargetURL = $targetURL . (($index === 0) ? '' : '/' . ($index + 1));
+            $finalTargetURL = $targetURL . (($index === 0) ? '' : ($index + 1) . '/');
             $targetDirectory = public_path($finalTargetURL);
             if (!file_exists($targetDirectory)) {
                 mkdir($targetDirectory);
