@@ -30,6 +30,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Commonmark Extensions
+    |--------------------------------------------------------------------------
+    |
+    | Additional commonmark extension to load. Don't forget to install the composer dependency.
+    |
+    | @see:
+    | - https://github.com/spekulatius/laravel-commonmark-blog#adding-commonmark-extensions
+    | - https://commonmark.thephpleague.com/1.5/extensions/overview/
+    |
+    */
+
+    'extensions' => [
+        // 1. Run: composer require simonvomeyser/commonmark-ext-lazy-image
+        // 2. Uncomment:
+        // new \SimonVomEyser\CommonMarkExtension\LazyImageExtension(),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Converter configuration
     |--------------------------------------------------------------------------
     |
@@ -130,25 +149,6 @@ return [
         // .. renders ..
         //
         // <meta name="og:site_name" content="Laravel" />
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Commonmark Extensions
-    |--------------------------------------------------------------------------
-    |
-    | Additional commonmark extension to load. Don't forget to install the composer dependency.
-    |
-    | @see:
-    | - https://github.com/spekulatius/laravel-commonmark-blog#adding-commonmark-extensions
-    | - https://commonmark.thephpleague.com/1.5/extensions/overview/
-    |
-    */
-
-    'extensions' => [
-        // 1. Run: composer require simonvomeyser/commonmark-ext-lazy-image
-        // 2. Uncomment:
-        // new \SimonVomEyser\CommonMarkExtension\LazyImageExtension(),
     ],
 
 ];
