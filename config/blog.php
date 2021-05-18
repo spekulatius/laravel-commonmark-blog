@@ -30,6 +30,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Commonmark Extensions
+    |--------------------------------------------------------------------------
+    |
+    | Additional commonmark extension to load. Don't forget to install the composer dependency.
+    |
+    | @see:
+    | - https://github.com/spekulatius/laravel-commonmark-blog#adding-commonmark-extensions
+    | - https://commonmark.thephpleague.com/1.5/extensions/overview/
+    |
+    */
+
+    'extensions' => [
+        // 1. Run: composer require simonvomeyser/commonmark-ext-lazy-image
+        // 2. Uncomment:
+        // new \SimonVomEyser\CommonMarkExtension\LazyImageExtension(),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Converter configuration
     |--------------------------------------------------------------------------
     |
@@ -72,6 +91,27 @@ return [
     */
 
     'date_format' => 'Y-m-d H:i:s',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Optional Cache Storage
+    |--------------------------------------------------------------------------
+    |
+    | The generated articles (not lists), can be stored in the cache for other usage.
+    | This allows usage in sidebars, "read also"-sections, etc.
+    |
+    | This is deactive by default!
+    | Set the cache key to a string, e.g. 'generated-articles' to activate it.
+    |
+    */
+
+    'cache' => [
+        // Name of the key to store it under. Null means deactive.
+        'key' => null,
+
+        // Seconds until expiry
+        'expiry' => 86400,
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -130,25 +170,6 @@ return [
         // .. renders ..
         //
         // <meta name="og:site_name" content="Laravel" />
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Commonmark Extensions
-    |--------------------------------------------------------------------------
-    |
-    | Additional commonmark extension to load. Don't forget to install the composer dependency.
-    |
-    | @see:
-    | - https://github.com/spekulatius/laravel-commonmark-blog#adding-commonmark-extensions
-    | - https://commonmark.thephpleague.com/1.5/extensions/overview/
-    |
-    */
-
-    'extensions' => [
-        // 1. Run: composer require simonvomeyser/commonmark-ext-lazy-image
-        // 2. Uncomment:
-        // new \SimonVomEyser\CommonMarkExtension\LazyImageExtension(),
     ],
 
 ];

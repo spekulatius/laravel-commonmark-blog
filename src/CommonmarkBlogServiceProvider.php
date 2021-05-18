@@ -3,7 +3,6 @@
 namespace Spekulatius\LaravelCommonmarkBlog;
 
 use Spekulatius\LaravelCommonmarkBlog\Commands\BuildBlog;
-
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
