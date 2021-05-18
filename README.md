@@ -25,14 +25,15 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 - **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other file extensions such as `.markdown` are ignored.
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a per-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
+- **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not check and will be included by default.
 
 ### SEO-Enhancements
 
 There are several SEO-improvements included or easily configurable via extensions:
 
- - Meta-tags, Twitter Card and Facebook Open-Graph from the post-frontmatter or globally
- - Adding lazy-loading attributes to images (optional via extension)
- - Global definitions of `rel`-attributes for root-domain, sub-domains, and external links (optional via extension)
+- Meta-tags, Twitter Card and Facebook Open-Graph from the post-frontmatter or globally
+- Adding lazy-loading attributes to images (optional via extension)
+- Global definitions of `rel`-attributes for root-domain, sub-domains, and external links (optional via extension)
 
 SEO improvements are usually active by default or can be configured using the config file.
 
@@ -40,8 +41,8 @@ SEO improvements are usually active by default or can be configured using the co
 
 The following extension/improvements are considered for the blog package:
 
- - Image-Optimization,
- - Schema.org entries using [Spatie/schema-org](https://github.com/spatie/schema-org).
+- Image-Optimization,
+- Schema.org entries using [Spatie/schema-org](https://github.com/spatie/schema-org).
 
 
 ## How to Use This Package

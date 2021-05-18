@@ -139,7 +139,9 @@ class BuildBlog extends Command
         $generated_articles = [];
         foreach ($files['articles'] as $article_file) {
             // Convert the file and store it directly in the public folder.
-            $generated_articles[] = $this->convertArticle($article_file);
+            if ($this->shouldConvertArticle($article_file)) {
+                $generated_articles[] = $this->convertArticle($article_file);
+            }
 
             // Delete the copied over instance of the file
             unlink(public_path($article_file->getRelativePathname()));
@@ -169,6 +171,25 @@ class BuildBlog extends Command
     {
         // Find all files which meet the scope requirements
         return (new Finder)->files()->name('*.md')->in($path);
+    }
+
+    /**
+     * Checks if a given article file should be converted.
+     *
+     * @param SplFileInfo $file
+     * @return bool
+     */
+    protected function shouldConvertArticle(SplFileInfo $file)
+    {
+        $data = $this->prepareData($file->getRealPath());
+
+        // Check if this article should be converted or is still unpublished.
+        return
+            isset($data['published']) &&
+            Carbon::createFromFormat(
+                config('blog.date_format', 'Y-m-d H:i:s'),
+                $data['published']
+            )->isPast();
     }
 
     /**
@@ -245,7 +266,9 @@ class BuildBlog extends Command
         // Find all related pages and sort them by date
         $chunked_articles = collect($generated_articles)
             // Only use the pages below this URL
-            ->reject(function($item) use ($target_url) { return !Str::startsWith($item['generated_url'], $target_url); })
+            ->reject(function($item) use ($target_url) {
+                return !Str::startsWith($item['generated_url'], $target_url);
+            })
 
             // Sort by date by default
             ->sortByDesc('modified')
