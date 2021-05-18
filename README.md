@@ -25,6 +25,7 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 - **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other file extensions such as `.markdown` are ignored.
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a per-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
+- Information about the generated articles can be stored in the cache optionally. This allows to add elements dynamically to sidebars, footers, etc.
 - **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not check and will be included by default.
 
 ### SEO-Enhancements

@@ -94,6 +94,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Optional Cache Storage
+    |--------------------------------------------------------------------------
+    |
+    | The generated article (not lists), can be stored in the cache for other usage.
+    |
+    | This could be used to fill sidebars, "read also"-sections, etc.
+    |
+    | Deactive by default!
+    | Set the cache key to a string, e.g. 'generated-articles' to activate it.
+    |
+    */
+
+    'cache' => [
+        // Name of the key to store it under. Null means deactive.
+        'key' => null,
+
+        // Seconds until expiry
+        'expiry' => 86400,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Default values for frontmatter values.
     |--------------------------------------------------------------------------
     |

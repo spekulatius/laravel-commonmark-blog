@@ -20,6 +20,7 @@ use romanzipp\Seo\Structs\Script;
 use romanzipp\Seo\Structs\Struct;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class BuildBlog extends Command
 {
@@ -156,6 +157,17 @@ class BuildBlog extends Command
             unlink(public_path($list_file->getRelativePathname()));
         }
 
+        // Store the generated articles in the cache for other usage.
+        if (config('blog.cache.key', null)) {
+            $this->info('Stored generated articles in cache');
+
+            Cache::put(
+                config('blog.cache.key'),
+                $generated_articles,
+                config('blog.cache.expiry', 86400),
+            );
+        }
+
         $this->info('Build completed.');
     }
 
@@ -206,7 +218,7 @@ class BuildBlog extends Command
         $data = $this->prepareData($file->getRealPath());
 
         // Define the target directory and create it (optionally).
-        $target_url = preg_replace('/\.md$/', '', $file->getRelativePathname());
+        $target_url = preg_replace('/\.md$/', '/', $file->getRelativePathname());
         $target_directory = public_path($target_url);
         if (!file_exists($target_directory)) {
             mkdir($target_directory);
