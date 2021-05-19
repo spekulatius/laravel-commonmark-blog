@@ -361,19 +361,23 @@ class BuildBlog extends Command
 
         // Filter any methods which aren't allowed or misconfigured.
         seo()->addFromArray(array_filter($frontmatter, function($value, $key) {
-            return is_string($value) && (
-                in_array($key, [
-                    'charset',
-                    'viewport',
-                    'title',
-                    'description',
-                    'image',
-                    'canonical',
-                ]) || in_array($key, [
-                    'og',
-                    'twitter',
-                    'meta',
-                ]) && is_array($value)
+            return (
+                    is_string($value) &&
+                    in_array($key, [
+                        'charset',
+                        'viewport',
+                        'title',
+                        'description',
+                        'image',
+                        'canonical',
+                    ])
+                ||
+                    is_array($value) &&
+                    in_array($key, [
+                        'og',
+                        'twitter',
+                        'meta',
+                    ])
             );
         }, ARRAY_FILTER_USE_BOTH));
 
