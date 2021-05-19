@@ -359,7 +359,7 @@ class BuildBlog extends Command
             return $entry instanceof Struct;
         })));
 
-        // Filter any methods which aren't allowed for misconfigured.
+        // Filter any methods which aren't allowed or misconfigured.
         seo()->addFromArray(array_filter($frontmatter, function($value, $key) {
             return is_string($value) && (
                 in_array($key, [
@@ -446,6 +446,16 @@ class BuildBlog extends Command
                         $frontmatter['published']
                     )->toAtomString()
                 ),
+            ]);
+        }
+
+        // Ensure the canoncial becomes "twitter:url" and "og:url"
+        if (isset($frontmatter['canoncial'])) {
+            seo()->addMany([
+                OpenGraph::make()->property('url')
+                    ->content($frontmatter['canoncial']),
+                Twitter::make()->property('url')
+                    ->content($frontmatter['canoncial']),
             ]);
         }
 
