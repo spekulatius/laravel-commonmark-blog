@@ -450,12 +450,12 @@ class BuildBlog extends Command
         }
 
         // Ensure the canoncial becomes "twitter:url" and "og:url"
-        if (isset($frontmatter['canoncial'])) {
+        if (isset($frontmatter['canonical'])) {
             seo()->addMany([
                 OpenGraph::make()->property('url')
-                    ->content($frontmatter['canoncial']),
-                Twitter::make()->property('url')
-                    ->content($frontmatter['canoncial']),
+                    ->content($frontmatter['canonical']),
+                Twitter::make()->name('url')
+                    ->content($frontmatter['canonical']),
             ]);
         }
 
