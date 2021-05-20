@@ -453,7 +453,7 @@ class BuildBlog extends Command
             ]);
         }
 
-        // Ensure the canoncial becomes "twitter:url" and "og:url"
+        // Ensure the canonical becomes "twitter:url" and "og:url"
         if (isset($frontmatter['canonical'])) {
             seo()->addMany([
                 OpenGraph::make()->property('url')
