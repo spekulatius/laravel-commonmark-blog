@@ -66,7 +66,7 @@ image: "/images/code.jpg"
 ....
 ```
 
-Default values can be set under `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
+Default values can be set under `defaults` in the config file. If you unsure which headers to include consult [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
 
 ### How to Add a Article Listing Page
 
@@ -109,7 +109,7 @@ Note:
 
 ### Requirements
 
-- PHP 7.2 or higher. PHP8 untested.
+- PHP 7.3 or higher. PHP8 untested.
 - Laravel 6, 7 and 8
 - Serving of `index.htm` files by your web-server (default for Nginx)
 
@@ -140,6 +140,8 @@ You can add Commonmark extensions to your configuration file under `extensions`:
 ```
 
 Make sure to run the required composer install commands for the extensions before. Packages are usually not required by default.
+
+In the configuration file `config/blog.php`, you can add additional configuration for the extensions under `config`.
 
 
 ## Usage: Rendering of the Blog Posts
