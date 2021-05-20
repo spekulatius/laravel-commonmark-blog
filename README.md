@@ -14,7 +14,7 @@ The goal of this package is to separate the blog content from the application wh
 
 Maximal performance is achieved by avoiding rendering and passing content through the framework. The framework is only used initially to prepare and render the blog content. The rendered files are written directly to the `public/`-directory to avoid hitting the application. Assuming correct server configuration, the blog achieves (near) static-site performance levels.
 
-For each file a directory with an `index.htm` is created to avoid additional server configuration. For example, the file `blog/my-article.md` would be stored as `blog/my-article/index.htm`. Most web-server are already configured to serve these files directly.
+For each file, a directory with an `index.htm` is created to avoid additional server configuration. For example, the file `blog/my-article.md` would be stored as `blog/my-article/index.htm`. Most web-server are already configured to serve these files directly.
 
 With a focus on SEO, CommonMark is the logical choice: It is highly extensible allowing for any customization you might need to rank. There is also an [example repository demonstrating the blog](https://github.com/spekulatius/laravel-commonmark-blog-example) further.
 
@@ -25,14 +25,14 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 - **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other file extensions such as `.markdown` are ignored.
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a per-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
-- Information about the generated articles can be stored in the cache optionally. This allows to add elements dynamically to sidebars, footers, etc.
-- **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not check and will be included by default.
+- Information about the generated articles can be stored in the cache optionally. This allows adding elements dynamically to sidebars, footers, etc.
+- **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not checked and will be included by default.
 
 ### SEO-Enhancements
 
-There are several SEO-improvements included or easily configurable via extensions:
+There are several SEO improvements included or easily configurable via extensions:
 
-- Meta-tags, Twitter Card and Facebook Open-Graph from the post-frontmatter or globally
+- Meta-tags, Twitter Card, and Facebook Open-Graph from the post-frontmatter or globally
 - Adding lazy-loading attributes to images (optional via extension)
 - Global definitions of `rel`-attributes for root-domain, sub-domains, and external links (optional via extension)
 
@@ -48,7 +48,7 @@ The following extension/improvements are considered for the blog package:
 
 ## How to Use This Package
 
-Below are examples on how to use the blog package.
+Below are examples of how to use the blog package.
 
 ### How to Add a Post
 
@@ -66,20 +66,20 @@ image: "/images/code.jpg"
 ....
 ```
 
-Default values can be set under `defaults` in the config file. A great resource on what to include is [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
+Default values can be set under `defaults` in the config file. If you unsure which headers to include consult [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
 
-### How to Add a Article Listing Page
+### How to Add an Article Listing Page
 
-Listing pages can be created by adding a file called `index.md` within a directory. With this, the rendering method of gets the following parameters passed in:
+Listing pages can be created by adding a file called `index.md` within a directory. With this, the rendering method gets the following parameters passed in:
 
  - the complete frontmatter (the current list page' frontmatter merged with the `defaults` from [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php),
  - the CommonMark-rendered content of the listing page as `$content`,
  - the `$total_pages` as the number of pages,
  - the `$current_page` for the number of the page,
  - the `$base_url` for the pagination pages, and
- - the `$articles` for the ariticles.
+ - the `$articles` for the articles.
 
-With this information your Blade-file should be able to render a complete article listing page. In addition the numbered page-files an `index` file is added to allow a "root"-page without page number. The following example explains this more.
+With this information, your Blade-file should be able to render a complete article listing page. In addition to the numbered page files an `index` file is added to allow a "root"-page without a page number. The following example explains this more.
 
 If three listing pages with articles need to be created the following files would be created:
 
@@ -100,16 +100,16 @@ domain.com/blog/3
 ```
 
 Note:
-- By default the articles includes also articles in further nested directories below.
+- By default, the articles includes also articles in further nested directories below.
 - All pages will automatically receive a canonical URL according to the page number.
-- The first page (here `/blog/1`) is only a copy of the `index.htm` to allow access with a number. It automatically contains a canoncial URL to the variation without page number (here: `/blog`).
+- The first page (here `/blog/1`) is only a copy of the `index.htm` to allow access with a number. It automatically contains a canonical URL to the variation without page number (here: `/blog`).
 
 
 ## Requirements & Installation
 
 ### Requirements
 
-- PHP 7.2 or higher. PHP8 untested.
+- PHP 7.3 or higher. PHP8 untested.
 - Laravel 6, 7 and 8
 - Serving of `index.htm` files by your web-server (default for Nginx)
 
@@ -140,6 +140,8 @@ You can add Commonmark extensions to your configuration file under `extensions`:
 ```
 
 Make sure to run the required composer install commands for the extensions before. Packages are usually not required by default.
+
+In the configuration file `config/blog.php`, you can add additional configuration for the extensions under `config`.
 
 
 ## Usage: Rendering of the Blog Posts
