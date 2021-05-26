@@ -418,7 +418,11 @@ class BuildBlog extends Command
                     seo()->add(Link::make()->rel('stylesheet')->href($asset->url));
                 }
                 if ($asset->as === 'script') {
-                    seo()->add(Script::make()->src($asset->url));
+                    seo()->add(
+                        Script::make()
+                            ->src($asset->url)
+                            ->attr('async')
+                    );
                 }
             }
         }
