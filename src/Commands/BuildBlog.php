@@ -232,7 +232,7 @@ class BuildBlog extends Command
 
         // Return the generated header information with some additional details for internal handling.
         return array_merge([
-            'absolute_url' => Str::finish(env('APP_URL'), '/') . $targetURL,
+            'absolute_url' => Str::finish(config('app.url'), '/') . $targetURL,
             'generated_url' => $targetURL,
         ], $data);
     }
@@ -307,12 +307,12 @@ class BuildBlog extends Command
                     // Header and content.
                     'header' => $this->prepareLaravelSEOHeaders(array_merge(
                         $page->matter(),
-                        ['canonical' => Str::finish(env('APP_URL'), '/') . $finalTargetURL]
+                        ['canonical' => Str::finish(config('app.url'), '/') . $finalTargetURL]
                     )),
                     'content' => $this->converter->convertToHtml($page->body()),
 
                     // Articles and pagination information
-                    'base_url' => Str::finish(env('APP_URL'), '/') . $targetURL,
+                    'base_url' => Str::finish(config('app.url'), '/') . $targetURL,
                     'articles' => $pageArticles,
                     'total_pages' => $totalPages,
                     'current_page' => $index + 1,
@@ -402,7 +402,7 @@ class BuildBlog extends Command
             $manifestAssets = seo()
                 ->mix()
                 ->map(static function(ManifestAsset $asset): ?ManifestAsset {
-                    $asset->url = env('APP_URL') . $asset->url;
+                    $asset->url = config('app.url') . $asset->url;
 
                     return $asset;
                 })
