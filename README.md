@@ -27,6 +27,7 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
 - Information about the generated articles can be stored in the cache optionally. This allows adding elements dynamically to sidebars, footers, etc.
 - **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not checked and will be included by default.
+- **hreflang**: You can add an array with alternative language urls to the frontmatter and it will be converted to hreflang tags. This way you can build multi-lingual sites.
 
 ### SEO-Enhancements
 
@@ -104,6 +105,45 @@ Note:
 - All pages will automatically receive a canonical URL according to the page number.
 - The first page (here `/blog/1`) is only a copy of the `index.htm` to allow access with a number. It automatically contains a canonical URL to the variation without page number (here: `/blog`).
 
+### Multi-language blogs with `hreflang`
+
+The blog module supports multi-lingual blogs using `hreflang`. Each language version of an article will live in a separate markdown file and is cross-references using `hreflang`:
+
+**English article:**
+
+```yaml
+---
+title: "The Love of Code"
+description: "Why I love to code."
+canonical: "/the-love-of-code/"
+
+hreflang:
+    de: "/de/die-liebe-zum-programmieren/"
+---
+
+# The Love Of Code
+
+....
+```
+
+**German article:**
+
+```yaml
+---
+title: "Die Liebe zum Programmieren"
+description: "Warum ich Programmieren liebe."
+canonical: "/de/die-liebe-zum-programmieren/"
+
+hreflang:
+    en: "/the-love-of-code/"
+---
+
+# Die Liebe zum Programmieren
+
+....
+```
+
+**Please note:** This doesn't consider embargo (delayed publishing) at the moment. You will need to ensure that your site doesn't reference a not-yet published article manually.
 
 ## Requirements & Installation
 

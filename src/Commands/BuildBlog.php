@@ -232,7 +232,7 @@ class BuildBlog extends Command
 
         // Return the generated header information with some additional details for internal handling.
         return array_merge([
-            'absolute_url' => Str::finish(env('APP_URL'), '/') . $targetURL,
+            'absolute_url' => $this->makeAbsolute($targetURL),
             'generated_url' => $targetURL,
         ], $data);
     }
@@ -307,12 +307,12 @@ class BuildBlog extends Command
                     // Header and content.
                     'header' => $this->prepareLaravelSEOHeaders(array_merge(
                         $page->matter(),
-                        ['canonical' => Str::finish(env('APP_URL'), '/') . $finalTargetURL]
+                        ['canonical' => $this->makeAbsolute($finalTargetURL)]
                     )),
                     'content' => $this->converter->convertToHtml($page->body()),
 
                     // Articles and pagination information
-                    'base_url' => Str::finish(env('APP_URL'), '/') . $targetURL,
+                    'base_url' => $this->makeAbsolute($targetURL),
                     'articles' => $pageArticles,
                     'total_pages' => $totalPages,
                     'current_page' => $index + 1,
@@ -325,7 +325,8 @@ class BuildBlog extends Command
                 view(config('blog.list_base_template'), $data)->render()
             );
 
-            // Copy the index.htm to 1/index.htm, if it's the first page. Saves lots of cases in the pagination.
+            // Copy the index.htm to 1/index.htm, if it's the first page.
+            // Saves lots of cases in the pagination.
             if ($index === 0) {
                 if (!file_exists($targetDirectory . '/1')) {
                     mkdir($targetDirectory . '/1');
@@ -402,7 +403,7 @@ class BuildBlog extends Command
             $manifestAssets = seo()
                 ->mix()
                 ->map(static function(ManifestAsset $asset): ?ManifestAsset {
-                    $asset->url = env('APP_URL') . $asset->url;
+                    $asset->url = config('app.url') . $asset->url;
 
                     return $asset;
                 })
@@ -481,5 +482,28 @@ class BuildBlog extends Command
                 OpenGraph::make()->property('updated_time')->content($date),
             ]);
         }
+
+        // hreflang: alternative languages
+        if (isset($frontmatter['hreflang'])) {
+            // Add in
+            seo()->addMany(collect($frontmatter['hreflang'])->map(function ($uri, $lang) {
+                return Link::make()
+                    ->rel('alternate')
+                    ->attr('hreflang', $lang)
+                    ->href($this->makeAbsolute($uri));
+            })->toArray());
+        }
+    }
+
+    /**
+     * Turns a method into an absolute url
+     *
+     * @param string $uri
+     * @return string
+     */
+    protected function makeAbsolute(string $uri): string
+    {
+        return config('app.url') . Str::endsWith(config('app.url'), '/') ?
+            $uri : Str::start($uri, '/');
     }
 }
