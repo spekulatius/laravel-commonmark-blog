@@ -481,5 +481,16 @@ class BuildBlog extends Command
                 OpenGraph::make()->property('updated_time')->content($date),
             ]);
         }
+
+        // hreflang: alternative languages
+        if (isset($frontmatter['hreflang'])) {
+            // Add in
+            seo()->addMany(collect($frontmatter['hreflang'])->map(function ($item) {
+                return Link::make()
+                    ->rel('alternate')
+                    ->attr('hreflang', key($item))
+                    ->href($item[key($item)]);
+            })->toArray());
+        }
     }
 }
