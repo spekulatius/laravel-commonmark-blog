@@ -143,6 +143,8 @@ hreflang:
 ....
 ```
 
+**Please note:** This doesn't consider embargo (delayed publishing) at the moment. You will need to ensure that your site doesn't reference a not-yet published article manually.
+
 ## Requirements & Installation
 
 ### Requirements
