@@ -503,7 +503,8 @@ class BuildBlog extends Command
      */
     protected function makeAbsolute(string $uri): string
     {
-        return config('app.url') . Str::endsWith(config('app.url'), '/') ?
-            $uri : Str::start($uri, '/');
+        return
+            config('app.url') .
+            (Str::endsWith(config('app.url'), '/') ? $uri : Str::start($uri, '/'));
     }
 }
