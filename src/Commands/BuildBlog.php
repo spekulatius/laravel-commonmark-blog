@@ -492,6 +492,15 @@ class BuildBlog extends Command
                     ->attr('hreflang', $lang)
                     ->href($this->makeAbsolute($uri));
             })->toArray());
+
+            // Self-reference hreflang
+            if (isset($frontmatter['locale']) && isset($frontmatter['canonical'])) {
+                seo()->add(Link::make()
+                    ->rel('alternate')
+                    ->attr('hreflang', $frontmatter['locale'])
+                    ->href($frontmatter['canonical'])
+                );
+            }
         }
     }
 

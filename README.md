@@ -117,6 +117,7 @@ title: "The Love of Code"
 description: "Why I love to code."
 canonical: "/the-love-of-code/"
 
+locale: "en"
 hreflang:
     de: "/de/die-liebe-zum-programmieren/"
 ---
@@ -134,6 +135,7 @@ title: "Die Liebe zum Programmieren"
 description: "Warum ich Programmieren liebe."
 canonical: "/de/die-liebe-zum-programmieren/"
 
+locale: "de"
 hreflang:
     en: "/the-love-of-code/"
 ---
