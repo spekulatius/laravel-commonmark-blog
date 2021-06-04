@@ -232,7 +232,7 @@ class BuildBlog extends Command
 
         // Return the generated header information with some additional details for internal handling.
         return array_merge([
-            'absolute_url' => $this->makeAbsolute($targetURL),
+            'absolute_url' => $this->makeURLAbsolute($targetURL),
             'generated_url' => $targetURL,
         ], $data);
     }
@@ -307,12 +307,12 @@ class BuildBlog extends Command
                     // Header and content.
                     'header' => $this->prepareLaravelSEOHeaders(array_merge(
                         $page->matter(),
-                        ['canonical' => $this->makeAbsolute($finalTargetURL)]
+                        ['canonical' => $this->makeURLAbsolute($finalTargetURL)]
                     )),
                     'content' => $this->converter->convertToHtml($page->body()),
 
                     // Articles and pagination information
-                    'base_url' => $this->makeAbsolute($targetURL),
+                    'base_url' => $this->makeURLAbsolute($targetURL),
                     'articles' => $pageArticles,
                     'total_pages' => $totalPages,
                     'current_page' => $index + 1,
@@ -461,10 +461,12 @@ class BuildBlog extends Command
         // Ensure the canonical becomes "twitter:url" and "og:url"
         if (isset($frontmatter['canonical'])) {
             seo()->addMany([
-                OpenGraph::make()->property('url')
-                    ->content($frontmatter['canonical']),
-                Twitter::make()->name('url')
-                    ->content($frontmatter['canonical']),
+                OpenGraph::make()
+                    ->property('url')
+                    ->content($this->makeURLAbsolute($frontmatter['canonical'])),
+                Twitter::make()
+                    ->name('url')
+                    ->content($this->makeURLAbsolute($frontmatter['canonical'])),
             ]);
         }
 
@@ -490,7 +492,7 @@ class BuildBlog extends Command
                 return Link::make()
                     ->rel('alternate')
                     ->attr('hreflang', $lang)
-                    ->href($this->makeAbsolute($uri));
+                    ->href($this->makeURLAbsolute($uri));
             })->toArray());
 
             // Self-reference hreflang
@@ -498,7 +500,7 @@ class BuildBlog extends Command
                 seo()->add(Link::make()
                     ->rel('alternate')
                     ->attr('hreflang', $frontmatter['locale'])
-                    ->href($frontmatter['canonical'])
+                    ->href($this->makeURLAbsolute($frontmatter['canonical']))
                 );
             }
         }
@@ -510,10 +512,11 @@ class BuildBlog extends Command
      * @param string $uri
      * @return string
      */
-    protected function makeAbsolute(string $uri): string
+    protected function makeURLAbsolute(string $uri): string
     {
-        return
+        return Str::startsWith($uri, 'http') ? $uri : (
             config('app.url') .
-            (Str::endsWith(config('app.url'), '/') ? $uri : Str::start($uri, '/'));
+            (Str::endsWith(config('app.url'), '/') ? $uri : Str::start($uri, '/'))
+        );
     }
 }
