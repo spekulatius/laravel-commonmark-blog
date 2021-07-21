@@ -580,7 +580,7 @@ class BuildBlog extends Command
     }
 
     /**
-     * Turns a method into an absolute url
+     * Turns an URI into an absolute URL
      *
      * @param string $uri
      * @return string
