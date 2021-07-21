@@ -80,8 +80,22 @@ class BuildBlog extends Command
         // Prep
         $this->bootstrap();
 
+        // Note the start
+        $this->info('Building from ' . $this->sourcePath);
+        $this->newLine();
+
+        // Release the embargo files
+        $this->releaseFiles();
+
         // Identify and convert the files
-        $this->convertFiles();
+        $generatedArticles = $this->convertFiles();
+
+        // Push the generated articles into the cache, if configured.
+        $this->populateCache($generatedArticles);
+
+        // Note the end
+        $this->newLine();
+        $this->info('Build completed.');
 
         // Done.
         return 0;
@@ -116,21 +130,63 @@ class BuildBlog extends Command
     }
 
     /**
+     * Finds embargo files and release them, if due.
+     *
+     * @return void
+     */
+    protected function releaseFiles()
+    {
+        // 1. Find the files matching the extension ".[0-9].emb.md"
+        // 2. Iterate through the files
+        // 3. Release them, if due.
+        $files = $this->findFiles($this->sourcePath, '*.emb.md');
+        $releaseFiles = [];
+        foreach ($files as $file) {
+            // Load the file to check the frontmatter, if it's ready for release.
+            $article = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
+
+            // Check if the file is ready for release.
+            if (Carbon::createFromFormat(
+                config('blog.date_format', 'Y-m-d H:i:s'),
+                $article->matter()['modified']
+            )->isPast()) {
+                $releaseFiles[] = $file;
+            }
+        }
+
+        // Iterate through the files in reverse (1 before 2) and move them
+        $this->info(count($releaseFiles) . ' files to release');
+        foreach (array_reverse($releaseFiles) as $file) {
+            // Log the file
+            $this->info('- ' . $file->getRelativePathname());
+
+            // Move the file over to replace the original file.
+            rename(
+                $file->getRealPath(),
+                preg_replace('/\.\d+\.emb\.md/', '.md', $file->getRealPath())
+            );
+        }
+    }
+
+    /**
      * Finds and converts all files to process.
      *
      * @return void
      */
     protected function convertFiles()
     {
-        $this->info('Building from ' . $this->sourcePath);
-
         // Mirror the complete structure over to create the folder structure as needed.
         (new Filesystem)->mirror($this->sourcePath, public_path());
 
-        // Identify the files to process and sort them.
+        // Identify the files to process (without `.[0-9].emb.md` files)
+        $sourceFiles = $this->findFiles($this->sourcePath, '*.md')
+            ->filter(function ($file) {
+                return strpos($file->getRelativePathname(), '.emb.md') === false;
+            });
+
+        // Sort files by type (article or list)
         $files = ['articles' => [], 'lists' => []];
-        foreach ($this->findFiles($this->sourcePath) as $file) {
-            // Sort the fiels into lists and articles to process them in order below.
+        foreach ($sourceFiles as $file) {
             $files[
                 Str::endsWith($file->getRelativePathname(), 'index.md') ? 'lists' : 'articles'
             ][] = $file;
@@ -138,6 +194,8 @@ class BuildBlog extends Command
 
         // Convert the articles
         $generatedArticles = [];
+        $this->newLine();
+        $this->info(count($files['articles']) . ' articles considered for convertion');
         foreach ($files['articles'] as $articleFile) {
             // Convert the file and store it directly in the public folder.
             if ($this->shouldConvertArticle($articleFile)) {
@@ -149,6 +207,8 @@ class BuildBlog extends Command
         }
 
         // Convert the lists
+        $this->newLine();
+        $this->info(count($files['lists']) . ' lists to convert');
         foreach ($files['lists'] as $listFile) {
             // Convert the file and store it directly in the public folder.
             $this->convertList($listFile, $generatedArticles);
@@ -157,8 +217,21 @@ class BuildBlog extends Command
             unlink(public_path($listFile->getRelativePathname()));
         }
 
+        // Return the list of generated articles for later caching.
+        return $generatedArticles;
+    }
+
+    /**
+     * Pushes an array (including frontmatter) in the cache for other usage.
+     *
+     * @param array $generatedArticles
+     * @return void
+     */
+    protected function populateCache(array $generatedArticles): void
+    {
         // Store the generated articles in the cache for other usage.
         if (config('blog.cache.key', null)) {
+            $this->newLine();
             $this->info('Stored generated articles in cache');
 
             Cache::put(
@@ -167,8 +240,6 @@ class BuildBlog extends Command
                 config('blog.cache.expiry', 86400),
             );
         }
-
-        $this->info('Build completed.');
     }
 
     /**
@@ -177,12 +248,13 @@ class BuildBlog extends Command
      * Overwrite this method to access other sources than the filesystem.
      *
      * @param string $path
+     * @param string $extension
      * @return array
      */
-    protected function findFiles(string $path)
+    protected function findFiles(string $path, string $extension)
     {
         // Find all files which meet the scope requirements
-        return (new Finder)->files()->name('*.md')->in($path);
+        return (new Finder)->files()->name($extension)->in($path);
     }
 
     /**
@@ -212,7 +284,7 @@ class BuildBlog extends Command
      */
     protected function convertArticle(SplFileInfo $file)
     {
-        $this->info('Converting Article ' . $file->getRelativePathname());
+        $this->info('- ' . $file->getRelativePathname());
 
         // Prepares the data
         $data = $this->prepareData($file->getRealPath());
@@ -267,15 +339,14 @@ class BuildBlog extends Command
      */
     protected function convertList(SplFileInfo $file, array $generatedArticles)
     {
-        $this->info('Preparing List ' . $file->getRelativePathname());
-
         // Split frontmatter and the commonmark parts.
         $page = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
 
         // Define the target directory and create it (optionally).
         $targetURL = preg_replace('/\/index\.md$/', '/', $file->getRelativePathname());
+        $this->info('- ' . $targetURL);
 
-        // Find all related pages and sort them by date
+        // Find all related pages, sort them by date and chunk them up into pages.
         $chunkedArticles = collect($generatedArticles)
             // Only use the pages below this URL
             ->reject(function($item) use ($targetURL) {
@@ -291,7 +362,7 @@ class BuildBlog extends Command
         // Process each chunk into a page
         $totalPages = $chunkedArticles->count();
         $chunkedArticles->each(function($pageArticles, $index) use ($page, $targetURL, $totalPages) {
-            $this->info('Creating page ' . ($index + 1) . ' of ' . $totalPages);
+            $this->info('  creating page ' . ($index + 1) . ' of ' . $totalPages);
 
             // Generate a page for each chunk.
             $finalTargetURL = $targetURL . (($index === 0) ? '' : ($index + 1) . '/');
