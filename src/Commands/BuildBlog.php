@@ -85,10 +85,10 @@ class BuildBlog extends Command
         $this->newLine();
 
         // Release the embargo files
-        $this->releaseFiles();
+        $this->releaseFiles($this->sourcePath);
 
         // Identify and convert the files
-        $generatedArticles = $this->convertFiles();
+        $generatedArticles = $this->convertFiles($this->sourcePath);
 
         // Push the generated articles into the cache, if configured.
         $this->populateCache($generatedArticles);
@@ -130,16 +130,17 @@ class BuildBlog extends Command
     }
 
     /**
-     * Finds embargo files and release them, if due.
+     * Finds embargo files and releases them (if due).
      *
+     * @param string $sourcePath
      * @return void
      */
-    protected function releaseFiles()
+    protected function releaseFiles(string $sourcePath)
     {
         // 1. Find the files matching the extension ".[0-9].emb.md"
         // 2. Iterate through the files
         // 3. Release them, if due.
-        $files = $this->findFiles($this->sourcePath, '*.emb.md');
+        $files = $this->findFiles($sourcePath, '*.emb.md');
         $releaseFiles = [];
         foreach ($files as $file) {
             // Load the file to check the frontmatter, if it's ready for release.
@@ -171,15 +172,16 @@ class BuildBlog extends Command
     /**
      * Finds and converts all files to process.
      *
+     * @param string $sourcePath
      * @return void
      */
-    protected function convertFiles()
+    protected function convertFiles(string $sourcePath)
     {
         // Mirror the complete structure over to create the folder structure as needed.
-        (new Filesystem)->mirror($this->sourcePath, public_path());
+        (new Filesystem)->mirror($sourcePath, public_path());
 
         // Identify the files to process (without `.[0-9].emb.md` files)
-        $sourceFiles = $this->findFiles($this->sourcePath, '*.md')
+        $sourceFiles = $this->findFiles($sourcePath, '*.md')
             ->filter(function ($file) {
                 return strpos($file->getRelativePathname(), '.emb.md') === false;
             });
