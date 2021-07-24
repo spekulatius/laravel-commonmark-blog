@@ -5,7 +5,7 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/spekulatius/laravel-commonmark-blog.svg?style=flat-square)](https://packagist.org/packages/spekulatius/laravel-commonmark-blog)
 
-A simple filesystem-based, SEO-optimized blog for Laravel using [Commonmark](https://commonmark.org) and [Laravel SEO](https://github.com/romanzipp/Laravel-SEO).
+The Laravel Commonmark Blog is *kind of a static site generator* for Laravel. It is a simple filesystem-based & SEO-optimized structure-blog for Laravel using [Commonmark](https://commonmark.org) and [Laravel SEO](https://github.com/romanzipp/Laravel-SEO).
 
 
 ## Goals & Main Concepts
@@ -26,8 +26,8 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a per-article basis.
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
 - Information about the generated articles can be stored in the cache optionally. This allows adding elements dynamically to sidebars, footers, etc.
-- **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not checked and will be included by default.
-- **hreflang**: You can add an array with alternative language urls to the frontmatter and it will be converted to hreflang tags. This way you can build multi-lingual sites.
+- **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not checked and will be included by default. Files with the ending `*.emb.md` will be moved over within the same directory.
+- **hreflang**: You can add an array with alternative language URLs to the frontmatter and it will be converted to hreflang tags. This way you can build multi-lingual sites.
 
 ### SEO-Enhancements
 
@@ -67,7 +67,7 @@ image: "/images/code.jpg"
 ....
 ```
 
-Default values can be set under `defaults` in the config file. If you unsure which headers to include consult [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
+Default values can be set under `defaults` in the config file. If you are unsure which headers to include consult [joshbuchea/HEAD](https://github.com/joshbuchea/HEAD).
 
 ### How to Add an Article Listing Page
 
@@ -145,19 +145,19 @@ hreflang:
 ....
 ```
 
-**Please note:** This doesn't consider embargo (delayed publishing) at the moment. You will need to ensure that your site doesn't reference a not-yet published article manually.
+**Please note:** This doesn't consider embargo (delayed publishing) at the moment. You will need to ensure that your site doesn't reference a not-yet-published article manually.
 
 ## Requirements & Installation
 
 ### Requirements
 
-- PHP 7.3 or higher. PHP8 untested.
+- PHP 7.3 or higher
 - Laravel 6, 7 and 8
 - Serving of `index.htm` files by your web-server (default for Nginx)
 
 ### Installation
 
-This package is distributed using composer. If you aren't using composer you probably already know how to install a package. Here the steps for composer-based installation:
+This package is distributed using composer. If you aren't using composer you probably already know how to install a package. Here are the steps for composer-based installation:
 
 ```bash
 composer require spekulatius/laravel-commonmark-blog
@@ -188,7 +188,7 @@ In the configuration file `config/blog.php`, you can add additional configuratio
 
 ## Usage: Rendering of the Blog Posts
 
-The build of the blog is done using an [Artisan](https://laravel.com/docs/7.x/artisan) command:
+The build of the blog is done using an [Artisan](https://laravel.com/docs/artisan) command:
 
 ```bash
 php artisan blog:build
