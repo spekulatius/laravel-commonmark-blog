@@ -5,7 +5,7 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/spekulatius/laravel-commonmark-blog.svg?style=flat-square)](https://packagist.org/packages/spekulatius/laravel-commonmark-blog)
 
-A simple filesystem-based, SEO-optimized blog for Laravel using [Commonmark](https://commonmark.org) and [Laravel SEO](https://github.com/romanzipp/Laravel-SEO).
+The Laravel Commonmark Blog is *kind of a static site generator* for Laravel. It is a simple filesystem-based & SEO-optimized structure-blog for Laravel using [Commonmark](https://commonmark.org) and [Laravel SEO](https://github.com/romanzipp/Laravel-SEO).
 
 
 ## Goals & Main Concepts
