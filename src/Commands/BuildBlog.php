@@ -373,13 +373,19 @@ class BuildBlog extends Command
                 mkdir($targetDirectory);
             }
 
+            // Remove hreflang for pages > 1
+            $frontmatter = $page->matter();
+            if ($index > 0 && isset($frontmatter['hreflang'])) {
+                unset($frontmatter['hreflang']);
+            }
+
             // Prepare the information to hand to the view - the frontmatter and headers+content.
             $data = array_merge(
-                array_merge(config('blog.defaults', []), $page->matter()),
+                array_merge(config('blog.defaults', []), $frontmatter),
                 [
                     // Header and content.
                     'header' => $this->prepareLaravelSEOHeaders(array_merge(
-                        $page->matter(),
+                        $frontmatter,
                         ['canonical' => $this->makeURLAbsolute($finalTargetURL)]
                     )),
                     'content' => $this->converter->convertToHtml($page->body()),
@@ -560,7 +566,6 @@ class BuildBlog extends Command
 
         // hreflang: alternative languages
         if (isset($frontmatter['hreflang'])) {
-            // Add in
             seo()->addMany(collect($frontmatter['hreflang'])->map(function ($uri, $lang) {
                 return Link::make()
                     ->rel('alternate')
