@@ -65,7 +65,7 @@ class BuildBlog extends Command
 
         // Create the converter.
         $this->converter = new CommonMarkConverter(
-            config('blog.config'),
+            config('blog.converter_config', []),
             $this->environment,
         );
     }
@@ -566,7 +566,13 @@ class BuildBlog extends Command
 
         // hreflang: alternative languages
         if (isset($frontmatter['hreflang'])) {
-            seo()->addMany(collect($frontmatter['hreflang'])->map(function ($uri, $lang) {
+            // Prepare the "x-default" entries.
+            $hreflangs = [];
+
+            // Other hreflang versions
+            seo()->addMany(collect($frontmatter['hreflang'])->map(function ($uri, $lang) use (&$hreflangs) {
+                $hreflangs[$lang] = $this->makeURLAbsolute($uri);
+
                 return Link::make()
                     ->rel('alternate')
                     ->attr('hreflang', $lang)
@@ -575,10 +581,22 @@ class BuildBlog extends Command
 
             // Self-reference hreflang
             if (isset($frontmatter['locale']) && isset($frontmatter['canonical'])) {
+                $hreflangs[$frontmatter['locale']] = $this->makeURLAbsolute($frontmatter['canonical']);
+
                 seo()->add(Link::make()
                     ->rel('alternate')
                     ->attr('hreflang', $frontmatter['locale'])
                     ->href($this->makeURLAbsolute($frontmatter['canonical']))
+                );
+            }
+
+            // Set the x-default entry, if it exists.
+            $xDefault = config('blog.hreflang_default') ?? null;
+            if ($xDefault && isset($hreflangs[$xDefault])) {
+                seo()->add(Link::make()
+                    ->rel('alternate')
+                    ->attr('hreflang', 'x-default')
+                    ->href($hreflangs[$xDefault])
                 );
             }
         }

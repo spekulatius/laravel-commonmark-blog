@@ -30,6 +30,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Hreflang x-default
+    |--------------------------------------------------------------------------
+    |
+    | This allows to define which locale should be considered as x-default.
+    |
+    | This will automatically add it, if the localized version exists.
+    |
+    */
+
+    'hreflang_default' => 'en',
+
+    /*
+    |--------------------------------------------------------------------------
     | Commonmark Extensions
     |--------------------------------------------------------------------------
     |
@@ -58,7 +71,7 @@ return [
     |
     */
 
-    'config' => [
+    'converter_config' => [
     ],
 
     /*
