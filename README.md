@@ -31,10 +31,9 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 
 - Information about the generated articles are optionally stored in the cache. This allows adding elements dynamically to sidebars, footers, etc. based on the actually published articles and list pages.
 
-- **Automatic Content Embargo**:
-  Articles with publication dates (`published`) in the future will be ignored until the date passed. Manually added links are not checked and will be included by default.
+- **Automatic Content Embargo**: Articles with publication dates (`published`) in the future will be ignored, until the date passed. Note: Manually added links are not checked and will be included by default.
 
-  Files with the ending `*.emb.md` will replace original file (e.g. without `.1.emb.md`), once the `modified` date is passed.
+- **Partial Content Embargo:** Files with the ending `*.emb.md` will replace original file (e.g. without `.1.emb.md`), once the `modified` date is passed.
 
 - **hreflang**: With `hreflang` way you can build multi-lingual sites.
 
