@@ -299,6 +299,7 @@ class BuildBlog extends Command
         }
 
         // Render the file using the blade file and write it as index.htm into the directory.
+        isset($data['locale']) ? app()->setLocale($data['locale']) : '';
         file_put_contents(
             $targetDirectory . '/index.htm',
             view(config('blog.article_base_template'), $data)->render()
@@ -399,6 +400,7 @@ class BuildBlog extends Command
             );
 
             // Render the file and write it.
+            isset($data['locale']) ? app()->setLocale($data['locale']) : '';
             file_put_contents(
                 $targetDirectory . '/index.htm',
                 view(config('blog.list_base_template'), $data)->render()
