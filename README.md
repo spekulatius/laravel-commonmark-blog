@@ -22,12 +22,27 @@ With a focus on SEO, CommonMark is the logical choice: It is highly extensible a
 ## Core Features
 
 - Support of both articles and article-listing pages. The [example repo](https://github.com/spekulatius/laravel-commonmark-blog-example) shows how to.
-- **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other file extensions such as `.markdown` are ignored.
+
+- **CommonMark**: [PHP CommonMark](https://github.com/thephpleague/commonmark) to support extensibility. By default, all `.md` files are converted to HTML files. The HTML files are stored in the `public/`-directory. Other file extensions such as `.markdown` are ignored, but copied over.
+
 - **Frontmatter** can be defined as global defaults in [`config/blog.php`](https://github.com/spekulatius/laravel-commonmark-blog/blob/main/config/blog.php) and on a per-article basis.
+
 - **Assets** such as videos, images, etc. as well as any other files are copied over 1:1.
-- Information about the generated articles can be stored in the cache optionally. This allows adding elements dynamically to sidebars, footers, etc.
-- **Automatic embargo**: Articles with publication dates in the future will not be converted. Manually added links are not checked and will be included by default. Files with the ending `*.emb.md` will be moved over within the same directory.
-- **hreflang**: You can add an array with alternative language URLs to the frontmatter and it will be converted to hreflang tags. This way you can build multi-lingual sites.
+
+- Information about the generated articles are optionally stored in the cache. This allows adding elements dynamically to sidebars, footers, etc. based on the actually published articles and list pages.
+
+- **Automatic Content Embargo**:
+  Articles with publication dates (`published`) in the future will be ignored until the date passed. Manually added links are not checked and will be included by default.
+
+  Files with the ending `*.emb.md` will replace original file (e.g. without `.1.emb.md`), once the `modified` date is passed.
+
+- **hreflang**: With `hreflang` way you can build multi-lingual sites.
+
+  You can add an array with alternative language URLs to the frontmatter and it will be converted to hreflang tags.
+
+  `x-default` will be set to a locale defined in the config-file.
+
+  The `locale` in the frontmatter will be set on the app before rendering the templates.
 
 ### SEO-Enhancements
 
