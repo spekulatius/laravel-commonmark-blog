@@ -197,7 +197,7 @@ class BuildBlog extends Command
         // Convert the articles
         $generatedArticles = [];
         $this->newLine();
-        $this->info(count($files['articles']) . ' articles considered for convertion');
+        $this->info(count($files['articles']) . ' articles considered for conversion');
         foreach ($files['articles'] as $articleFile) {
             // Convert the file and store it directly in the public folder.
             if ($this->shouldConvertArticle($articleFile)) {
