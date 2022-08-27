@@ -165,8 +165,8 @@ hreflang:
 
 ### Requirements
 
-- PHP 7.3 or higher
-- Laravel 6, 7 and 8
+- PHP 7.4 or higher
+- Laravel 8.75 or newer
 - Serving of `index.htm` files by your web-server (default for Nginx)
 
 ### Installation
