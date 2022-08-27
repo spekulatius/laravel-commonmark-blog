@@ -4,7 +4,7 @@ namespace Spekulatius\LaravelCommonmarkBlog\Commands;
 
 use Carbon\Carbon;
 use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Environment;
+use League\CommonMark\Environment\Environment;
 use Spatie\YamlFrontMatter\YamlFrontMatter;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -13,7 +13,6 @@ use romanzipp\Seo\Conductors\Types\ManifestAsset;
 use romanzipp\Seo\Structs\Link;
 use romanzipp\Seo\Structs\Meta;
 use romanzipp\Seo\Structs\Meta\Article;
-use romanzipp\Seo\Structs\Meta\Canonical;
 use romanzipp\Seo\Structs\Meta\OpenGraph;
 use romanzipp\Seo\Structs\Meta\Twitter;
 use romanzipp\Seo\Structs\Script;
@@ -57,7 +56,7 @@ class BuildBlog extends Command
     {
         parent::__construct();
 
-        // Prepare the enviroment with the custom extensions.
+        // Prepare the environment with the custom extensions.
         $this->environment = Environment::createCommonMarkEnvironment();
         foreach (config('blog.extensions') as $extension) {
             $this->environment->addExtension($extension);
