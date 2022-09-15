@@ -146,10 +146,7 @@ class BuildBlog extends Command
             $article = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
 
             // Check if the file is ready for release.
-            if (Carbon::createFromFormat(
-                config('blog.date_format', 'Y-m-d H:i:s'),
-                $article->matter()['modified']
-            )->isPast()) {
+            if ((new Carbon($article->matter()['modified']))->isPast()) {
                 $releaseFiles[] = $file;
             }
         }
