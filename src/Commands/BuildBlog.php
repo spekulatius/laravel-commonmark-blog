@@ -286,7 +286,6 @@ class BuildBlog extends Command
 
         // Prepares the data
         $data = $this->prepareData($file->getRealPath());
-        dump($data);
 
         // Define the target directory and create it (optionally).
         $targetURL = preg_replace('/\.md$/', '/', $file->getRelativePathname());
@@ -330,14 +329,23 @@ class BuildBlog extends Command
             ]
         );
 
-        if (isset($data['published'])) {
-            dump($data['published']);
-            $date = (new Carbon($data['published']));
-            $data['published'] = $date->format(config('blog.date_format', 'Y-m-d H:i:s'));
-            dump($data['published']);
+        return $this->formatDateFields($data);
+    }
+
+    /**
+     * @param array $fields
+     * @return array
+     */
+    private function formatDateFields(array $fields): array
+    {
+        if (isset($fields['published'])) {
+            dump($fields['published']);
+            $date = (new Carbon($fields['published']));
+            $fields['published_formatted'] = $date->format(config('blog.date_format', 'Y-m-d H:i:s'));
+            dump($fields['published_formatted']);
         }
 
-        return $data;
+        return $fields;
     }
 
     /**
@@ -556,10 +564,6 @@ class BuildBlog extends Command
         // Modified
         if (isset($frontmatter['modified'])) {
             // Prep the date string
-            /*$date = Carbon::createFromFormat(
-                config('blog.date_format', 'Y-m-d H:i:s'),
-                $frontmatter['modified']
-            )->toAtomString();*/
             $date = (new Carbon($frontmatter['modified']))->toAtomString();
 
             // Add in
