@@ -286,6 +286,7 @@ class BuildBlog extends Command
 
         // Prepares the data
         $data = $this->prepareData($file->getRealPath());
+        dump($data);
 
         // Define the target directory and create it (optionally).
         $targetURL = preg_replace('/\.md$/', '/', $file->getRelativePathname());
@@ -321,13 +322,22 @@ class BuildBlog extends Command
         $article = YamlFrontMatter::parse(file_get_contents($filename));
 
         // Prepare the information to hand to the view - the frontmatter and headers+content.
-        return array_merge(
+        $data = array_merge(
             array_merge(config('blog.defaults', []), $article->matter()),
             [
                 'header' => $this->prepareLaravelSEOHeaders($article->matter()),
                 'content' => $this->converter->convertToHtml($article->body()),
             ]
         );
+
+        if (isset($data['published'])) {
+            dump($data['published']);
+            $date = (new Carbon($data['published']));
+            $data['published'] = $date->format(config('blog.date_format', 'Y-m-d H:i:s'));
+            dump($data['published']);
+        }
+
+        return $data;
     }
 
     /**
