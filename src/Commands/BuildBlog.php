@@ -330,6 +330,10 @@ class BuildBlog extends Command
     }
 
     /**
+     * Format the date fields of the blog post using the date format specified
+     * in the config file. The original field will be kept for backwards
+     * compatibility.
+     *
      * @param array $fields
      * @return array
      */
