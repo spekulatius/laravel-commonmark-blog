@@ -338,11 +338,13 @@ class BuildBlog extends Command
      */
     private function formatDateFields(array $fields): array
     {
-        if (isset($fields['published'])) {
-            dump($fields['published']);
-            $date = (new Carbon($fields['published']));
-            $fields['published_formatted'] = $date->format(config('blog.date_format', 'Y-m-d H:i:s'));
-            dump($fields['published_formatted']);
+        $dates = ['published', 'modified'];
+
+        foreach ($dates as $dateField) {
+            if (isset($fields[$dateField])) {
+                $date = (new Carbon($fields[$dateField]));
+                $fields[$dateField . '_formatted'] = $date->format(config('blog.date_format', 'Y-m-d H:i:s'));
+            }
         }
 
         return $fields;
