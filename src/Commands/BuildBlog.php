@@ -271,10 +271,7 @@ class BuildBlog extends Command
         // Check if this article should be converted or is still unpublished.
         return
             isset($data['published']) &&
-            Carbon::createFromFormat(
-                config('blog.date_format', 'Y-m-d H:i:s'),
-                $data['published']
-            )->isPast();
+            (new Carbon($data['published']))->isPast();
     }
 
     /**
@@ -528,13 +525,9 @@ class BuildBlog extends Command
 
         // Published
         if (isset($frontmatter['published'])) {
+            $date = (new Carbon($frontmatter['published']));
             seo()->addMany([
-                Article::make()->property('published_time')->content(
-                    Carbon::createFromFormat(
-                        config('blog.date_format', 'Y-m-d H:i:s'),
-                        $frontmatter['published']
-                    )->toAtomString()
-                ),
+                Article::make()->property('published_time')->content($date->toAtomString()),
             ]);
         }
 
@@ -553,10 +546,11 @@ class BuildBlog extends Command
         // Modified
         if (isset($frontmatter['modified'])) {
             // Prep the date string
-            $date = Carbon::createFromFormat(
+            /*$date = Carbon::createFromFormat(
                 config('blog.date_format', 'Y-m-d H:i:s'),
                 $frontmatter['modified']
-            )->toAtomString();
+            )->toAtomString();*/
+            $date = (new Carbon($frontmatter['modified']))->toAtomString();
 
             // Add in
             seo()->addMany([
