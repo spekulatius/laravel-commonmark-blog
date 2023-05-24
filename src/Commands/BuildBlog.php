@@ -146,10 +146,7 @@ class BuildBlog extends Command
             $article = YamlFrontMatter::parse(file_get_contents($file->getRealPath()));
 
             // Check if the file is ready for release.
-            if (Carbon::createFromFormat(
-                config('blog.date_format', 'Y-m-d H:i:s'),
-                $article->matter()['modified']
-            )->isPast()) {
+            if ((new Carbon($article->matter()['modified']))->isPast()) {
                 $releaseFiles[] = $file;
             }
         }
@@ -271,10 +268,7 @@ class BuildBlog extends Command
         // Check if this article should be converted or is still unpublished.
         return
             isset($data['published']) &&
-            Carbon::createFromFormat(
-                config('blog.date_format', 'Y-m-d H:i:s'),
-                $data['published']
-            )->isPast();
+            (new Carbon($data['published']))->isPast();
     }
 
     /**
@@ -324,13 +318,37 @@ class BuildBlog extends Command
         $article = YamlFrontMatter::parse(file_get_contents($filename));
 
         // Prepare the information to hand to the view - the frontmatter and headers+content.
-        return array_merge(
+        $data = array_merge(
             array_merge(config('blog.defaults', []), $article->matter()),
             [
                 'header' => $this->prepareLaravelSEOHeaders($article->matter()),
                 'content' => $this->converter->convertToHtml($article->body()),
             ]
         );
+
+        return $this->formatDateFields($data);
+    }
+
+    /**
+     * Format the date fields of the blog post using the date format specified
+     * in the config file. The original field will be kept for backwards
+     * compatibility.
+     *
+     * @param array $fields
+     * @return array
+     */
+    private function formatDateFields(array $fields): array
+    {
+        $dates = ['published', 'modified'];
+
+        foreach ($dates as $dateField) {
+            if (isset($fields[$dateField])) {
+                $date = (new Carbon($fields[$dateField]));
+                $fields[$dateField . '_formatted'] = $date->format(config('blog.date_format', 'Y-m-d H:i:s'));
+            }
+        }
+
+        return $fields;
     }
 
     /**
@@ -528,13 +546,9 @@ class BuildBlog extends Command
 
         // Published
         if (isset($frontmatter['published'])) {
+            $date = (new Carbon($frontmatter['published']));
             seo()->addMany([
-                Article::make()->property('published_time')->content(
-                    Carbon::createFromFormat(
-                        config('blog.date_format', 'Y-m-d H:i:s'),
-                        $frontmatter['published']
-                    )->toAtomString()
-                ),
+                Article::make()->property('published_time')->content($date->toAtomString()),
             ]);
         }
 
@@ -553,10 +567,7 @@ class BuildBlog extends Command
         // Modified
         if (isset($frontmatter['modified'])) {
             // Prep the date string
-            $date = Carbon::createFromFormat(
-                config('blog.date_format', 'Y-m-d H:i:s'),
-                $frontmatter['modified']
-            )->toAtomString();
+            $date = (new Carbon($frontmatter['modified']))->toAtomString();
 
             // Add in
             seo()->addMany([
