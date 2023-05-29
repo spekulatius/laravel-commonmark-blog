@@ -321,6 +321,10 @@ class BuildBlog extends Command
     {
         // Split frontmatter and the commonmark parts.
         $article = YamlFrontMatter::parse(file_get_contents($filename));
+        $description = '';
+        if ($article->matter('description')) {
+            $description = $this->converter->convert($article->matter('description'));
+        }
 
         // Prepare the information to hand to the view - the frontmatter and headers+content.
         return array_merge(
@@ -328,7 +332,7 @@ class BuildBlog extends Command
             [
                 'header' => $this->prepareLaravelSEOHeaders($article->matter()),
                 'content' => $this->converter->convert($article->body()),
-                'description' => $this->converter->convert($article->matter()['description']),
+                'description' => $description,
             ]
         );
     }
