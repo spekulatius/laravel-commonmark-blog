@@ -73,6 +73,7 @@ class BuildBlog extends Command
      * Execute the console command.
      *
      * @return int
+     * @throws \League\CommonMark\Exception\CommonMarkException
      */
     public function handle()
     {
@@ -169,7 +170,8 @@ class BuildBlog extends Command
      * Finds and converts all files to process.
      *
      * @param string $sourcePath
-     * @return void
+     * @return array
+     * @throws \League\CommonMark\Exception\CommonMarkException
      */
     protected function convertFiles(string $sourcePath)
     {
@@ -247,7 +249,7 @@ class BuildBlog extends Command
      *
      * @param string $path
      * @param string $extension
-     * @return array
+     * @return Finder
      */
     protected function findFiles(string $path, string $extension)
     {
@@ -260,6 +262,7 @@ class BuildBlog extends Command
      *
      * @param SplFileInfo $file
      * @return bool
+     * @throws \League\CommonMark\Exception\CommonMarkException
      */
     protected function shouldConvertArticle(SplFileInfo $file)
     {
@@ -276,6 +279,7 @@ class BuildBlog extends Command
      *
      * @param SplFileInfo $file
      * @return array
+     * @throws \League\CommonMark\Exception\CommonMarkException
      */
     protected function convertArticle(SplFileInfo $file)
     {
@@ -311,6 +315,7 @@ class BuildBlog extends Command
      *
      * @param string $filename
      * @return array
+     * @throws \League\CommonMark\Exception\CommonMarkException
      */
     public function prepareData(string $filename)
     {
@@ -356,6 +361,7 @@ class BuildBlog extends Command
      *
      * @param SplFileInfo $file
      * @param array $generatedArticles
+     * @throws \League\CommonMark\Exception\CommonMarkException
      */
     protected function convertList(SplFileInfo $file, array $generatedArticles)
     {
@@ -615,7 +621,7 @@ class BuildBlog extends Command
     }
 
     /**
-     * Turns an URI into an absolute URL
+     * Turns a URI into an absolute URL
      *
      * @param string $uri
      * @return string
