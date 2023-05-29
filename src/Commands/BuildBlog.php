@@ -323,37 +323,13 @@ class BuildBlog extends Command
         $article = YamlFrontMatter::parse(file_get_contents($filename));
 
         // Prepare the information to hand to the view - the frontmatter and headers+content.
-        $data = array_merge(
+        return array_merge(
             array_merge(config('blog.defaults', []), $article->matter()),
             [
                 'header' => $this->prepareLaravelSEOHeaders($article->matter()),
                 'content' => $this->converter->convertToHtml($article->body()),
             ]
         );
-
-        return $this->formatDateFields($data);
-    }
-
-    /**
-     * Format the date fields of the blog post using the date format specified
-     * in the config file. The original field will be kept for backwards
-     * compatibility.
-     *
-     * @param array $fields
-     * @return array
-     */
-    private function formatDateFields(array $fields): array
-    {
-        $dates = ['published', 'modified'];
-
-        foreach ($dates as $dateField) {
-            if (isset($fields[$dateField])) {
-                $date = (new Carbon($fields[$dateField]));
-                $fields[$dateField . '_formatted'] = $date->format(config('blog.date_format', 'Y-m-d H:i:s'));
-            }
-        }
-
-        return $fields;
     }
 
     /**
