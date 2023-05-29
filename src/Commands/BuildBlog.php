@@ -327,7 +327,8 @@ class BuildBlog extends Command
             array_merge(config('blog.defaults', []), $article->matter()),
             [
                 'header' => $this->prepareLaravelSEOHeaders($article->matter()),
-                'content' => $this->converter->convertToHtml($article->body()),
+                'content' => $this->converter->convert($article->body()),
+                'description' => $this->converter->convert($article->matter()['description']),
             ]
         );
     }
@@ -388,7 +389,7 @@ class BuildBlog extends Command
                         $frontmatter,
                         ['canonical' => $this->makeURLAbsolute($finalTargetURL)]
                     )),
-                    'content' => $this->converter->convertToHtml($page->body()),
+                    'content' => $this->converter->convert($page->body()),
 
                     // Articles and pagination information
                     'base_url' => $this->makeURLAbsolute($targetURL),
