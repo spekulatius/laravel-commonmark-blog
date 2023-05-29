@@ -195,7 +195,7 @@ class BuildBlog extends Command
         // Convert the articles
         $generatedArticles = [];
         $this->newLine();
-        $this->info(count($files['articles']) . ' articles considered for convertion');
+        $this->info(count($files['articles']) . ' articles considered for conversion');
         foreach ($files['articles'] as $articleFile) {
             // Convert the file and store it directly in the public folder.
             if ($this->shouldConvertArticle($articleFile)) {
@@ -453,7 +453,7 @@ class BuildBlog extends Command
         // Merge the defaults in.
         $frontmatter = array_merge(config('blog.defaults', []), $frontmatter);
 
-        // Include the mix assets, if actived.
+        // Include the mix assets, if activated.
         $this->includeMixAssets();
 
         // Fill in some cases - e.g. keywords, dates, etc.
