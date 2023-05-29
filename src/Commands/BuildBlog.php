@@ -75,7 +75,7 @@ class BuildBlog extends Command
      * @return int
      * @throws \League\CommonMark\Exception\CommonMarkException
      */
-    public function handle()
+    public function handle(): int
     {
         // Prep
         $this->bootstrap();
@@ -104,7 +104,7 @@ class BuildBlog extends Command
     /**
      * Prepares the environment
      */
-    protected function bootstrap()
+    protected function bootstrap(): void
     {
         // Get the source path: either argument, configuration value or nothing.
         $sourcePath = $this->argument('source_path') ?? config('blog.source_path');
@@ -135,7 +135,7 @@ class BuildBlog extends Command
      * @param string $sourcePath
      * @return void
      */
-    protected function releaseFiles(string $sourcePath)
+    protected function releaseFiles(string $sourcePath): void
     {
         // 1. Find the files matching the extension ".[0-9].emb.md"
         // 2. Iterate through the files
@@ -173,7 +173,7 @@ class BuildBlog extends Command
      * @return array
      * @throws \League\CommonMark\Exception\CommonMarkException
      */
-    protected function convertFiles(string $sourcePath)
+    protected function convertFiles(string $sourcePath): array
     {
         // Mirror the complete structure over to create the folder structure as needed.
         (new Filesystem)->mirror($sourcePath, public_path());
@@ -251,7 +251,7 @@ class BuildBlog extends Command
      * @param string $extension
      * @return Finder
      */
-    protected function findFiles(string $path, string $extension)
+    protected function findFiles(string $path, string $extension): Finder
     {
         // Find all files which meet the scope requirements
         return (new Finder)->files()->name($extension)->in($path);
@@ -264,7 +264,7 @@ class BuildBlog extends Command
      * @return bool
      * @throws \League\CommonMark\Exception\CommonMarkException
      */
-    protected function shouldConvertArticle(SplFileInfo $file)
+    protected function shouldConvertArticle(SplFileInfo $file): bool
     {
         $data = $this->prepareData($file->getRealPath());
 
@@ -281,7 +281,7 @@ class BuildBlog extends Command
      * @return array
      * @throws \League\CommonMark\Exception\CommonMarkException
      */
-    protected function convertArticle(SplFileInfo $file)
+    protected function convertArticle(SplFileInfo $file): array
     {
         $this->info('- ' . $file->getRelativePathname());
 
@@ -317,7 +317,7 @@ class BuildBlog extends Command
      * @return array
      * @throws \League\CommonMark\Exception\CommonMarkException
      */
-    public function prepareData(string $filename)
+    public function prepareData(string $filename): array
     {
         // Split frontmatter and the commonmark parts.
         $article = YamlFrontMatter::parse(file_get_contents($filename));
@@ -448,7 +448,7 @@ class BuildBlog extends Command
      * @param array $frontmatter
      * @return string
      */
-    protected function prepareLaravelSEOHeaders(array $frontmatter)
+    protected function prepareLaravelSEOHeaders(array $frontmatter): string
     {
         // Merge the defaults in.
         $frontmatter = array_merge(config('blog.defaults', []), $frontmatter);
@@ -499,7 +499,7 @@ class BuildBlog extends Command
     /**
      * Helper to include the mix assets.
      */
-    protected function includeMixAssets()
+    protected function includeMixAssets(): void
     {
         // Add the preloading for Laravel elements in.
         if (config('blog.mix.active')) {
@@ -538,7 +538,7 @@ class BuildBlog extends Command
      *
      * @param array $frontmatter
      */
-    protected function fillIn(array $frontmatter)
+    protected function fillIn(array $frontmatter): void
     {
         // Keywords
         if (isset($frontmatter['keywords'])) {
